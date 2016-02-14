@@ -1,0 +1,7 @@
+.idea/*
+*.pyc
+*.pyo
+*/*.pyc
+__pycache__
+dist
+geo_squizzy.egg-info
