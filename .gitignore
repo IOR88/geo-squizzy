@@ -3,5 +3,6 @@
 *.pyo
 */*.pyc
 __pycache__
+setup.py
 dist
 geo_squizzy.egg-info
