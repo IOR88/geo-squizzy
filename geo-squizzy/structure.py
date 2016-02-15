@@ -1,5 +1,3 @@
-
-
 class GeoJSON:
     def __init__(self, *args, **kwargs):
         self.type = kwargs['geojson_doc_type']
