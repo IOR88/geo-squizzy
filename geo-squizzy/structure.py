@@ -1,3 +1,10 @@
-#TODO basic information about GeoJSON document structure
-#TODO Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon, and GeometryCollection.
-#TODO Features in GeoJSON contain a geometry object and additional properties, and a feature collection represents a list of features.
+
+
+class GeoJSON:
+    def __init__(self, *args, **kwargs):
+        self.type = kwargs['geojson_doc_type']
+        self.data = dict({"type": self.type, "features": []})
+        pass
+
+    def __read_geojson__(self):
+        pass
