@@ -5,5 +5,5 @@
 __pycache__
 dist
 geo_squizzy.egg-info
-build_big_data/data
+build_big_data/data/*
 research
