@@ -9,6 +9,15 @@ from tests.getdata import get_geojson
 #TODO key searcher and maybe already to mongoDB which will be used then for filtering(when we have keys)
 
 
+
+#TODO TWO multiprocesses ? each would have two threads maybe, thanks to that we would check different parts of recived data
+#TODO but that should be done by Lib Deamon API not by Lib itself
+
+
+class GeoSquizzy:
+    def __init__(self):
+        pass
+
 if __name__ == "__main__":
     geo = GeoJSON(geojson_doc_type="FeatureCollection")
     data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/dump1000.json")
