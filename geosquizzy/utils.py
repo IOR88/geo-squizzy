@@ -10,13 +10,17 @@ def is_geojson_doc(arg):
     return bool(re.match(pattern, arg))
 
 
-def get_string_slice(pattern, string, maxsplit):
+def get_string_slice(patterns, arg):
     """
-    :param pattern: regex
-    :param string:  string
-    :param maxsplit: int
+    :param patterns: [regex,...]
+    :param arg:  string
     :return: wanted string slice
     """
-    parts = re.split(pattern, string, maxsplit=maxsplit)
-    #print(parts)
-    #return parts[1]
+    while True:
+        try:
+            pattern = patterns.pop()
+            parts = re.split(pattern, arg, maxsplit=1)
+            arg = (parts[0].__len__() > parts[1].__len__()) and parts[0] or parts[1]
+        except IndexError:
+            break
+    return arg

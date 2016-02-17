@@ -57,8 +57,6 @@ class FeaturesTree(Tree):
         self.add_leaf(id='root', leaf=root)
         self.add_leaf(id='root', leaf=geometry)
         self.add_leaf(id='root', leaf=properties)
-        #print(self.nodes)
-        #print(self.get_all_leafs_paths())
 
 
 class GeoJSON:
@@ -69,7 +67,6 @@ class GeoJSON:
         self.geojson = None
         self.percentage = None
         self.is_doc = False
-        pass
 
     def start(self, **kwargs):
         """
@@ -96,10 +93,12 @@ class GeoJSON:
         if self.is_doc or utils.is_geojson_doc(self.geojson):
             """
             geojson doc mode
+            when we are getting a full geojson object we need only to get a features array
+            to achieve it we use to regex patterns, which are very general and should give us the [features inside]
             """
-            features_string = utils.get_string_slice(r'features (.*) ]', self.geojson, 2)
-            print(features_string)
-            pass
+            patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
+                        r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
+            features_string = utils.get_string_slice(patterns, self.geojson)
         else:
             """
             geojson chunk mode
