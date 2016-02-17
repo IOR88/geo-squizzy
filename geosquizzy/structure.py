@@ -1,5 +1,6 @@
 from copy import deepcopy
 import geosquizzy.utils as utils
+import geosquizzy.tokenizer as tokenizer
 
 
 class Tree:
@@ -64,6 +65,7 @@ class GeoJSON:
         self.type = kwargs['geojson_doc_type']
         self.data = dict({"type": self.type, "features": []})
         self.tree = FeaturesTree()
+        self.tokenizer = tokenizer.JsonTokenizer(structure=self.tree)
         self.geojson = None
         self.percentage = None
         self.is_doc = False
