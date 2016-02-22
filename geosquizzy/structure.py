@@ -1,6 +1,7 @@
 from copy import deepcopy
 import geosquizzy.utils as utils
 import geosquizzy.tokenizer as tokenizer
+import geosquizzy.fsm as fsm
 
 
 class Tree:
@@ -66,6 +67,7 @@ class GeoJSON:
         self.data = dict({"type": self.type, "features": []})
         self.tree = FeaturesTree()
         self.tokenizer = tokenizer.JsonTokenizer(structure=self.tree)
+        self.fsm = fsm.GeojsonFiniteStateMachine(structure=self.tree)
         self.geojson = None
         self.percentage = None
         self.is_doc = False
@@ -101,6 +103,16 @@ class GeoJSON:
             patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
                         r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
             features_string = utils.get_string_slice(patterns, self.geojson)
+            # TODO test
+
+            test_full_features = \
+               '[{"geometry": ' \
+               '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
+               '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
+               '"type": "Feature"}]'
+
+            #self.tokenizer.run_tokenizer(data=test_full_features)
+            self.fsm.run(data=test_full_features)
         else:
             """
             geojson chunk mode

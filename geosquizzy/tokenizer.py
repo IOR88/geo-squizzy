@@ -1,3 +1,5 @@
+import re
+import time
 """
 @TOKENS -> dict() which contains all values that can occur during tokenizing process
 @GRAMMAR_RULES -> dict() which contains some grammars(some specific relationships between tokens which
@@ -21,17 +23,6 @@ SEQUENCES = {
     'KEY_E': r'[:]+[\s]*["]+'
 }
 
-#TODO priorities of sequnces, tokesn ?
-
-test_full_features = \
-       '[{"geometry": ' \
-       '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
-       '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
-       '"type": "Feature"}]'
-
-# TODO we need some way to create generator which would yield each time when some node was completed, so we can
-# TODO send a ready to go search key to user
-
 
 class JsonTokenizer:
     """
@@ -53,6 +44,7 @@ class JsonTokenizer:
         self.tokens = TOKENS
         self.sequences = SEQUENCES
         self.STATUS = 0
+        self.LEVEL = 0
 
     # GRAMMAR_RULES #
     def root_rule(self):
@@ -80,5 +72,53 @@ class JsonTokenizer:
         it will end when char " is presented
         """
         self.STATUS = 4
+
+    def catch_key(self, data=None):
+        word = ''
+        for i, x in enumerate(data):
+            #print(i, x)
+            #assert False
+            if not re.match(self.tokens['QUOTATION_MARKS'], x):
+                word += x
+            else:
+                data = data[i+1:-1]
+                break
+        return word, data
+
+    def run_tokenizer(self, data=None):
+        start = time.time()
+        words_list = []
+        word = str()
+        for i, x in enumerate(data):
+            # if self.STATUS == 1 and not re.match(self.tokens['QUOTATION_MARKS'], x):
+            #     word += x
+            # if re.match(self.tokens['QUOTATION_MARKS'], x):
+            #     if self.STATUS == 0:
+            #         self.STATUS = 1
+            #     elif self.STATUS == 1:
+            #         #print(word, '\n')
+            #         word = str()
+            #         self.STATUS = 0
+            if self.STATUS == 0 and re.match(self.tokens['CURLY_BRACKET_O'], x):
+                """new json object"""
+                self.STATUS = 1
+            elif self.STATUS == 1 and re.match(self.tokens['QUOTATION_MARKS'], x):
+                """json object key starting"""
+                print(data.__len__())
+                word, data = self.catch_key(data[i+1:-1])
+                print(word, data.__len__(), data[0])
+                # next option is
+                # 1" VALUE "
+                # 2{ nested value and we could go back to second if
+                # 3[ which could have few possibilities
+                    #1 [1123,12323] -> coordinates
+                    #2 {} collection of objects
+                    #3 [[],[]] collection of collectiond
+                #assert False
+                pass
+        end = time.time()
+        print(data.__len__())
+        print(end-start)
+
 
 
