@@ -13,12 +13,17 @@ class Tree:
         self.tree = dict()
         self.nodes = dict()
 
-    def add_leaf(self, id=None, leaf=None):
-        if self.nodes.get(id, None) is None:
-            self.nodes[id] = leaf
-        else:
+    def add_leaf(self, leaf=None):
+        if leaf['parent'] is None:
+            """root"""
             self.nodes[leaf['id']] = leaf
-            self.nodes[id]['children'].append(leaf['id'])
+        elif self.nodes.get(leaf['id'], None) is None:
+            """new leaf"""
+            self.nodes[leaf['id']] = leaf
+
+            if leaf['id'] not in self.nodes[leaf['parent']]['children']:
+                """new children"""
+                self.nodes[leaf['parent']]['children'].append(leaf['id'])
 
     def get_all_leafs_paths(self):
         """will return list of list where each list contain
@@ -56,9 +61,9 @@ class FeaturesTree(Tree):
         root = self.prepare_new_leaf(id='root', level=0)
         geometry = self.prepare_new_leaf(id='geometry', level=1, parent='root')
         properties = self.prepare_new_leaf(id='properties', level=1, parent='root')
-        self.add_leaf(id='root', leaf=root)
-        self.add_leaf(id='root', leaf=geometry)
-        self.add_leaf(id='root', leaf=properties)
+        self.add_leaf(leaf=root)
+        self.add_leaf(leaf=geometry)
+        self.add_leaf(leaf=properties)
 
 
 class GeoJSON:
@@ -103,16 +108,18 @@ class GeoJSON:
             patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
                         r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
             features_string = utils.get_string_slice(patterns, self.geojson)
-            # TODO test
 
+            # TODO test
             test_full_features = \
                '[{"geometry": ' \
                '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
                '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
                '"type": "Feature"}]'
 
-            #self.tokenizer.run_tokenizer(data=test_full_features)
             self.fsm.run(data=test_full_features)
+
+            for x in self.tree.get_all_leafs_paths():
+                print(x, '\n')
         else:
             """
             geojson chunk mode
