@@ -116,10 +116,16 @@ class GeoJSON:
                '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
                '"type": "Feature"}]'
 
-            self.fsm.run(data=test_full_features)
+            test2_full_features = '[{"type": "Feature","geometry": {"type": "Point","coordinates": [ \n'\
+                    '-122.65335738658904,45.512083676585156]},"properties": {"name": "Hungry Heart Cupcakes",'\
+                    '"address": "1212 SE Hawthorne Boulevard","website": "http://www.hungryheartcupcakes.com",'\
+                    '"gluten free": "no","open1": "Monday - Sunday, 11am - 9pm"}}]'
 
-            for x in self.tree.get_all_leafs_paths():
-                print(x, '\n')
+            self.fsm.run(data=features_string)
+
+            # for x in self.tree.get_all_leafs_paths():
+            #     print(x, '\n')
+            # print(self.tree.nodes)
         else:
             """
             geojson chunk mode
