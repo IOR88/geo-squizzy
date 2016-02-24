@@ -38,14 +38,14 @@ geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
 Geojson data has to be a valid geojson document type="FeatureCollection"
 """
 
-data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/dump1000.json")
-geo_squizzy.start(geojson=data, is_doc=True)
+data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/ExampleDataPoint.json")
+geo_squizzy.geo_structure.start(geojson=data, is_doc=True)
 
 
 """
 To get all keys
 """
-geo_squizzy.tree.get_all_leafs_paths()
+geo_squizzy.geo_structure.tree.get_all_leafs_paths()
 
 
 ```
