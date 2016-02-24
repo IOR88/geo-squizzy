@@ -2,9 +2,9 @@
 
 ### General
 
-1.support only for GeoJSON type "FeatureCollection"
-2.no external dependencies
-3.tested successfully with python3.3 version
+1. support only for GeoJSON type "FeatureCollection"
+2. no external dependencies
+3. tested successfully with python3.3 version
 
 ### Installation
 
@@ -43,7 +43,8 @@ geo_squizzy.geo_structure.start(geojson=data, is_doc=True)
 
 
 """
-To get all keys
+To get all keys, a results will contain an [[str,str...],[]...]
+                                           [[key,parent,parent,root]]
 """
 geo_squizzy.geo_structure.tree.get_all_leafs_paths()
 
