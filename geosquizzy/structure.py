@@ -123,8 +123,8 @@ class GeoJSON:
 
             self.fsm.run(data=features_string)
 
-            # for x in self.tree.get_all_leafs_paths():
-            #     print(x, '\n')
+            for x in self.tree.get_all_leafs_paths():
+                print(x, '\n')
             # print(self.tree.nodes)
         else:
             """

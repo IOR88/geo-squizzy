@@ -185,7 +185,9 @@ def S4T(instance=None, next_state=None):
 def S5T(instance=None, next_state=None):
     """@transition_level=2(Two scenarios to the same S1 state)"""
     instance.state = next_state
+    """restart flags"""
     instance.super_flag = False
+    instance.flag = None
     """
     we can save example value for last leaf
     during this transition and we have to remove last key word
