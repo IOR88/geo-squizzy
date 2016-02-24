@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='geo-squizzy',
-    version='0.1',
+    version='0.1.dev',
     packages=find_packages(exclude=['tests*', 'research*', 'build_big_data*']),
     license='MIT',
     description='GeoJSON-unknown-documents-model-creation',

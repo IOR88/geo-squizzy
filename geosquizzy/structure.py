@@ -39,6 +39,7 @@ class Tree:
                 current_path.append(self.nodes[x]['id'])
                 last_parent = self.nodes[x]['parent']
                 while not (last_parent is None):
+                    # TODO maybe root should be change on features when FeaturesTree is init ?
                     segment = ("features", self.nodes[last_parent]['id'])[self.nodes[last_parent]['id'] != "root"]
                     current_path.append(segment)
                     if not (self.nodes[last_parent]['parent'] is None):
