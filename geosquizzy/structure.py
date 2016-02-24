@@ -39,7 +39,8 @@ class Tree:
                 current_path.append(self.nodes[x]['id'])
                 last_parent = self.nodes[x]['parent']
                 while not (last_parent is None):
-                    current_path.append(self.nodes[last_parent]['id'])
+                    segment = ("features", self.nodes[last_parent]['id'])[self.nodes[last_parent]['id'] != "root"]
+                    current_path.append(segment)
                     if not (self.nodes[last_parent]['parent'] is None):
                         last_parent = self.nodes[last_parent]['parent']
                     else:
@@ -123,8 +124,8 @@ class GeoJSON:
 
             self.fsm.run(data=features_string)
 
-            for x in self.tree.get_all_leafs_paths():
-                print(x, '\n')
+            # for x in self.tree.get_all_leafs_paths():
+            #     print(x, '\n')
             # print(self.tree.nodes)
         else:
             """
