@@ -2,6 +2,7 @@
 
 ### General
 
+0. last version geo-squizzy-0.1.dev2(unstable)
 1. support only for GeoJSON type "FeatureCollection"
 2. no external dependencies
 3. tested successfully with python3.3 version
