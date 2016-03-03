@@ -6,7 +6,8 @@ import geosquizzy.fsm as fsm
 
 class Tree:
     def __init__(self, *args, **kwargs):
-        self.leaf = dict({'id': None, 'children': [], 'level': 0, 'parent': None, 'completed': False})
+        self.leaf = dict({'id': None, 'name': None, 'children': [], 'level': 0,
+                          'parent': None, 'completed': False, 'values': []})
         """
         @self.leaf completed property will announce that the leaf is ready
         """
@@ -25,33 +26,39 @@ class Tree:
                 """new children"""
                 self.nodes[leaf['parent']]['children'].append(leaf['id'])
 
+    def add_leaf_values(self, id=None, values=None):
+        self.nodes[id]['values'] = values
+
     def get_all_leafs_paths(self):
-        """will return list of list where each list contain
-           a path to leaf ['properties', 'some_property', 'root']
-           the each path direction is descending from leaf to the root
-           we removed root as it is only abstract
-           node which doesn't exist in geojson doc
+        """we search through all nodes dict structure and for each element
+           which have an empty children array we will start to construct search path,
+           @query elements
+            in order to store more then one key of the same name but which occurred on different nestedness level
+            we have to provide unique name for it which is an @id, and for real key search representation we use
+            @name attribute
+            @id has to be used as well as linking key to describe inheritance
+            child @id @name parent=@id | parent @id(child parent)
         """
         paths = []
         for x in self.nodes:
-            current_path = []
+            new_key = {'keys': [], 'values': []}
             if self.nodes[x]['children'].__len__() == 0:
-                current_path.append(self.nodes[x]['id'])
+                new_key['keys'].append(self.nodes[x]['name'])
+                new_key['values'] = self.nodes[x]['values']
                 last_parent = self.nodes[x]['parent']
                 while not (last_parent is None):
-                    # TODO maybe root should be change on features when FeaturesTree is init ?
-                    segment = ("features", self.nodes[last_parent]['id'])[self.nodes[last_parent]['id'] != "root"]
-                    current_path.append(segment)
+                    new_key['keys'].append(self.nodes[last_parent]['name'])
                     if not (self.nodes[last_parent]['parent'] is None):
                         last_parent = self.nodes[last_parent]['parent']
                     else:
-                        paths.append(current_path)
+                        paths.append(new_key)
                         last_parent = None
         return paths
 
     def prepare_new_leaf(self, **kwargs):
         new_leaf = deepcopy(self.leaf)
         new_leaf['id'] = kwargs.get('id', None)
+        new_leaf['name'] = kwargs.get('name', None)
         new_leaf['level'] = kwargs.get('level', None)
         new_leaf['parent'] = kwargs.get('parent', None)
         return new_leaf
@@ -60,12 +67,6 @@ class Tree:
 class FeaturesTree(Tree):
     def __init__(self, *args, **kwargs):
         super(FeaturesTree, self).__init__(*args, **kwargs)
-        root = self.prepare_new_leaf(id='root', level=0)
-        geometry = self.prepare_new_leaf(id='geometry', level=1, parent='root')
-        properties = self.prepare_new_leaf(id='properties', level=1, parent='root')
-        self.add_leaf(leaf=root)
-        self.add_leaf(leaf=geometry)
-        self.add_leaf(leaf=properties)
 
 
 class GeoJSON:
@@ -107,9 +108,9 @@ class GeoJSON:
             when we are getting a full geojson object we need only to get a features array
             to achieve it we use to regex patterns, which are very general and should give us the [features inside]
             """
-            patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
-                        r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
-            features_string = utils.get_string_slice(patterns, self.geojson)
+            # patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
+            #             r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
+            # features_string = utils.get_string_slice(patterns, self.geojson)
 
             # TODO test
             test_full_features = \
@@ -123,11 +124,11 @@ class GeoJSON:
                     '"address": "1212 SE Hawthorne Boulevard","website": "http://www.hungryheartcupcakes.com",'\
                     '"gluten free": "no","open1": "Monday - Sunday, 11am - 9pm"}}]'
 
-            self.fsm.run(data=features_string)
+            self.fsm.run(data=self.geojson)
 
-            # for x in self.tree.get_all_leafs_paths():
-            #     print(x, '\n')
-            # print(self.tree.nodes)
+            for x in self.tree.get_all_leafs_paths():
+                print(x, '\n')
+            print(self.tree.nodes)
         else:
             """
             geojson chunk mode

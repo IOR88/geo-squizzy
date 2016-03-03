@@ -1,275 +1,219 @@
-"""
-Geosquizzy Finite State Machine
-@main core functionality of geosquizzy library
-"""
-
-"""
-@States@
-are functions which represent all possible GeojsonFiniteSateMachine states, each function
-return next state to which transition should be made and 1||0 value which mean if transition should be made
-or if the loop should go on in the current state waiting for a proper value so transition could have place
-
-@kwargs
- @state
- @character
- @nestedness
-"""
-
-
-def S0(**kwargs):
-    if kwargs['nestedness'] == 0 and kwargs['character'] == '[':
-        return 1, "S1"
-    else:
-        return 0, None
-
-
-def S1(**kwargs):
-    if kwargs['character'] == '{':
-        """
-        new object starting
-        """
-        return 1, "S2"
-    elif kwargs['character'] == '"' and not kwargs['super_flag']:
-        """
-        new key starting and previous char was '['
-        """
-        return 1, "S3"
-    elif (kwargs['character'] == '"' or
-          kwargs['character'] == '-' or
-          kwargs['character'].isdigit()) and kwargs['super_flag']:
-        """
-        previous char was '[' if above condition is true, that's mean that
-        values are array string or digits structure like: ["abc"...] or [10,2,-1...]
-        """
-        return 1, "S5"
-    elif kwargs['character'] == '}':
-        """
-        object closing
-        """
-        return 1, "S6"
-    else:
-        return 0, None
-
-
-def S2(**kwargs):
-    if kwargs['nestedness'] >= 2 and kwargs['character'] == '"':
-        return 1, "S3"
-    else:
-        return 0, None
-
-
-def S3(**kwargs):
-    if kwargs['nestedness'] >= 2 and kwargs['character'] == '"':
-        return 1, "S4"
-    else:
-        return 0, None
-    pass
-
-
-def S4(**kwargs):
-    if kwargs['nestedness'] >= 2 and kwargs['character'] == '[':
-        """
-        new array object
-        """
-        return 1, "S1"
-    elif kwargs['nestedness'] >= 2 and kwargs['character'] == '}':
-        """"
-        object closing
-        """
-        return 1, "S6"
-    elif kwargs['nestedness'] >= 2 and (kwargs['character'] == '"' or kwargs['character'].isdigit()):
-        """"
-        value pair for key object
-        """
-        return 1, "S5"
-    elif kwargs['nestedness'] >= 2 and kwargs['character'] == '{':
-        """"
-        new nested value
-        """
-        return 1, "S2"
-    else:
-        return 0, None
-
-
-def S5(**kwargs):
-    if kwargs['nestedness'] >= 2 and kwargs['character'] == ']' and kwargs['super_flag']:
-        return 1, "S1"
-    elif kwargs['nestedness'] >= 2 and kwargs['character'] == '"' and not kwargs['super_flag']:
-        return 1, "S1"
-    elif kwargs['nestedness'] >= 2 and kwargs['character'] == ',' \
-                                   and not kwargs['super_flag'] \
-                                   and not kwargs['flag'] == 0:
-        return 1, "S2"
-    else:
-        return 0, None
-
-
-def S6(**kwargs):
-    if kwargs['nestedness'] >= 2 and kwargs['character'] == ']':
-        return 1, "SF"
-    elif kwargs['nestedness'] >= 2 and kwargs['character'] == ',':
-        return 1, "S1"
-    else:
-        return 0, None
-
-
-def SF(**kwargs):
-    """
-    End state
-    """
-    return 0, None
-
-"""
-@Transitions@
-are functions which are invoked during changing states, each function has access to
-GeojsonFiniteStateMachine Instance and make changes to the machine body itself
-
-META DATA
-@transition level = 0...N A number of possible transition scenarios
-"""
-
-
-def S0T(instance=None, next_state=None):
-    """@transition_level=1"""
-    instance.nestedness += 1
-    instance.state = next_state
-
-
-def S1T(instance=None, next_state=None):
-    """@transition_level=4"""
-    instance.state = next_state
-    if next_state == "S5":
-        pass
-    elif next_state == "S2":
-        instance.nestedness += 1
-        instance.super_flag = False
-    elif next_state == "S3":
-        instance.super_flag = False
-    elif next_state == "S6":
-        instance.words.pop()
-        instance.nestedness -= 1
-
-
-def S2T(instance=None, next_state=None):
-    """@transition_level=1"""
-    instance.state = next_state
-
-
-def S3T(instance=None, next_state=None):
-    """@transition_level=1"""
-    instance.words.append(instance.key)
-    instance.key = ''
-    """update @self.structure model with new key"""
-    node = instance.structure.prepare_new_leaf(id=instance.words[-1],
-                                               level=instance.nestedness-1,
-                                               parent=instance.words[-2])
-    # print('NEW NODE', node, '\n')
-    instance.structure.add_leaf(leaf=node)
-    instance.state = next_state
-
-
-def S4T(instance=None, next_state=None):
-    """@transition_level=4"""
-    instance.state = next_state
-    if next_state == "S5":
-        instance.flag = 0
-    elif next_state == "S1":
-        instance.super_flag = True
-    elif next_state == "S6":
-        instance.words.pop()
-        instance.nestedness -= 1
-    elif next_state == "S2":
-        instance.nestedness += 1
-
-
-def S5T(instance=None, next_state=None):
-    """@transition_level=2(Two scenarios to the same S1 state)"""
-    instance.state = next_state
-    """restart flags"""
-    instance.super_flag = False
-    instance.flag = None
-    """
-    we can save example value for last leaf
-    during this transition and we have to remove last key word
-    """
-    # print('ALL WORD', instance.words, '\n')
-    # removed_word = instance.words.pop()
-    instance.words.pop()
-    instance.key = ''
-
-
-def S6T(instance=None, next_state=None):
-    """@transition_level=2"""
-    instance.state = next_state
-    if next_state == "S1":
-        instance.nestedness += 1
-    elif next_state == "SF":
-        pass
-
-
-def SFT(instance=None, next_state=None):
-    """@transition_level=1"""
-    """Ending Transition"""
-    pass
+import re, copy
 
 
 class GeojsonFiniteStateMachine:
     def __init__(self, *args, **kwargs):
         """
         @kwargs['structure'] Nodes/Tree json keys model representation
-        @self.nestedness is a dynamic factor +||- depending of json object nesting structure
-        @self.states is a dict with functions, f() execution should return next state and 1||0
-        @self.transitions is a list of tuples which represent all possible transition between states
-        @self.flag as default None but can have few INTS
-            [0 == "expression"("some expression between quotation marks")]
         """
         self.structure = kwargs['structure']
-        self.nestedness = 0
-        self.state = "S0"
-        self.super_flag = False
-        self.flag = None
-        self.data = None
-        self.words = ['root']
+        self.MBC = [0, 0, 0, 0]
+        self.stack_structure = []
+        self.command = [None, '0', [0, 0, 0, 0], -1]
+        self.words = []
+        self.values = []
         self.key = ''
-        self.states = {
-            "S0": S0, "S1": S1, "S2": S2, "S3": S3, "S4": S4, "S5": S5,
-            "S6": S6, "SF": SF
-        }
-        self.transitions = {
-            "S0T": S0T, "S1T": S1T, "S2T": S2T, "S3T": S3T, "S4T": S4T, "S5T": S5T,
-            "S6T": S6T, "SFT": SFT
+        self.lib_commands = {
+            '0{': ['EXP', '01', [0, 1, 0, 0], 0, (1, 'OBJ')],
+            '0:': ['VAL', '0000', [1, 0, 0, 0], 0],
+            '0,': ['DEL', '01', [0, 0, 0, 1], 0],
+            '0}': ['DEL', '11', [0, 0, 0, 1], 0],
+            '0VAL"': ['EXP', '10', [0, 1, 0, 0], 0],
+            '0VALDIG': ['DIG', '01', [0, 1, 0, 0], 0],
+            '0VAL{': ['EXP', '01', [0, 1, 0, 0], 0],
+            '0VAL[': ['ARR', '10', [1, 0, 0, 0], 0, (1, 'ARR')],
+            '0ARR"': ['EXP', '11', [0, 1, 0, 0], 0],
+            '0ARR{': ['EXP', '01', [0, 1, 0, 0], 0],
+            '0ARRDIG': ['DIG', '11', [0, 1, 0, 0], 0]
         }
 
-    def __pass_kwargs_to_states__(self, character):
-        """
-        :return prepared general body for states functions
-        """
-        return {"state": self.state, "character": character, "flag": self.flag,
-                "nestedness": self.nestedness, "super_flag": self.super_flag}
+    def __create_unique_id__(self, key):
+        if key == 0:
+            'parent'
+            try:
+                name = self.words[-2]
+                return name+str(self.words.__len__()-1)
+            except IndexError:
+                return None
+        elif key == 1:
+            'children'
+            return self.words[-1]+str(self.words.__len__())
+
+    def __get__command(self, char=None, mbc=None):
+        try:
+            return copy.deepcopy(self.lib_commands[mbc+char])
+        except KeyError:
+            return self.command
+
+    def __modify_structure_stack__(self, **kwargs):
+        if kwargs['arg'][0] == 1:
+            self.stack_structure.append(kwargs['arg'][1])
+        else:
+            try:
+                self.stack_structure.pop()
+            except IndexError:
+                pass
+
+    def __add__word__(self):
+        self.words.append(re.sub('"', '', self.key))
+
+    def __remove__word__(self):
+        try:
+            self.words.pop()
+        except IndexError:
+            pass
+
+    def __add_value__(self):
+        self.values.append(re.sub('"', '', self.key))
+
+    def __clean__values__(self):
+        self.values = []
+
+    def __save_value__(self):
+        self.structure.add_leaf_values(id=self.__create_unique_id__(1), values=self.values)
+        self.key = ''
+
+    def __save__word__(self):
+        node = self.structure.prepare_new_leaf(id=self.__create_unique_id__(1),
+                                               name=self.words[-1],
+                                               level=self.words.__len__(),
+                                               parent=self.__create_unique_id__(0))
+        self.structure.add_leaf(leaf=node)
+        self.key = ''
+
+    def __interpret__(self, **kwargs):
+        if not (self.command[0] is None):
+            if self.command[0] == 'VAL':
+                # TODO TEMP DIGIT INTERPRET
+                if kwargs['char'] == '-' or kwargs['char'].isdigit():
+                    self.command = self.__get__command(char=self.command[0]+'DIG', mbc='0')
+                    self.MBC = self.command[2]
+                else:
+                    self.command = self.__get__command(char=self.command[0]+kwargs['char'], mbc='0')
+                    self.MBC = self.command[2]
+            elif self.command[0] == 'ARR':
+                # TODO TEMP DIGIT INTERPRET
+                if kwargs['char'] == '-' or kwargs['char'].isdigit():
+                    self.command = self.__get__command(char=self.command[0]+'DIG', mbc='0')
+                    self.MBC = self.command[2]
+                else:
+                    self.command = self.__get__command(char=self.command[0]+kwargs['char'], mbc='0')
+                    self.MBC = self.command[2]
+        else:
+            self.command = self.__get__command(char=kwargs['char'], mbc='0')
+            self.MBC = self.command[2]
+
+        if self.command.__len__() == 5:
+            # TODO modify structure stack
+            self.__modify_structure_stack__(arg=self.command[4])
+            print(self.stack_structure)
+
+    def __write__(self, **kwargs):
+        if self.command[0] == 'EXP':
+            if kwargs['char'] == '"':
+                # open expression
+                self.command[3] += 1
+            if self.command[3] > 0:
+                # saving expression
+                self.key += kwargs['char']
+            if self.command[3] == 2:
+                # stop saving expression
+                self.MBC = [0, 0, 1, 0]
+        elif self.command[0] == 'DIG':
+            if self.command[1] == '11':
+                if kwargs['char'] == ',':
+                    self.__add_value__()
+                    self.key = ''
+                elif kwargs['char'] == ']':
+                    self.__add_value__()
+                    self.key = ''
+                    self.MBC = [0, 0, 1, 0]
+                    # TODO modify structure stack
+                    self.__modify_structure_stack__(arg=(0, 'ARR'))
+                else:
+                    self.key += kwargs['char']
+            elif self.command[1] == '01':
+                if kwargs['char'] == ',':
+                    self.__add_value__()
+                    self.key = ''
+                    self.MBC = [0, 0, 1, 0]
+                elif kwargs['char'] == '}':
+                    self.__add_value__()
+                    self.key = ''
+                    self.MBC = [0, 0, 1, 0]
+                    # TODO modify structure stack
+                    self.__modify_structure_stack__(arg=(0, 'OBJ'))
+                else:
+                    self.key += kwargs['char']
+
+    def __save__(self, **kwargs):
+        # print(self.key)
+        if self.command[0] == 'EXP':
+                # save values " some expression "
+            if self.command[1] == '01':
+                # add key
+                self.__add__word__()
+                # save key
+                self.__save__word__()
+                self.command[0], self.MBC = None, [1, 0, 0, 0]
+            elif self.command[1] == '10':
+                self.__add_value__()
+                self.__save_value__()
+                self.command[0], self.MBC = None, [1, 0, 0, 0]
+
+        elif self.command[0] == 'DIG':
+            # save digits
+            if self.command[1] == '11':
+                self.__save_value__()
+                self.command[0], self.MBC = None, [1, 0, 0, 0]
+            elif self.command[1] == '01':
+                self.__save_value__()
+                if kwargs['char'] == ',':
+                    self.command, self.MBC = ['DEL', '01', [0, 0, 0, 1], 0], [0, 0, 0, 1]
+                elif kwargs['char'] == '}':
+                    self.command, self.MBC = ['DEL', '11', [0, 0, 0, 1], 0], [0, 0, 0, 1]
+
+    def __remove__(self, **kwargs):
+        if self.command[0] == 'DEL':
+            # remove last word and its values
+            # print(self.words)
+            self.__remove__word__()
+            self.__clean__values__()
+            # print(self.words)
+            if self.command[1] == '01':
+                # switch to write mode
+                self.command = ['EXP', '01', [0, 1, 0, 0], 0]
+                self.MBC = [0, 1, 0, 0]
+            elif self.command[1] == '11':
+                # will remove two words, because we are closing object
+                self.__remove__word__()
+                self.command = [None, '01', [1, 0, 0, 0], 0]
+                self.MBC = [1, 0, 0, 0]
 
     def run(self, **kwargs):
         """
         @kwargs['data'] features array
         """
         self.data = kwargs['data']
-        for i, k in enumerate(self.data):
-            # print(str(i)+' ', self.state, k, self.super_flag, self.nestedness)
-            """activities depending on self.states"""
-            if self.state == 'S3' and k != '"' and k != '\n':
-                """joining key"""
-                self.key += k
-            elif self.state == 'S5' and k != '"' and k != '\n':
-                """joining value"""
-                self.key += k
+        self.MBC[0] = 1
 
-            """loop logic"""
-            bool_tuple = self.states[self.state](**self.__pass_kwargs_to_states__(k))
-            if bool_tuple[0] == 1:
-                """make transition to next state"""
-                self.transitions[self.state+"T"](instance=self, next_state=bool_tuple[1])
-            else:
-                """keep going in current state"""
+        for i, k in enumerate(self.data):
+            # print(self.command, k, i)
+            if self.MBC[0] == 1:
+                # interpret #
+                self.__interpret__(char=k)
+            if self.MBC[1] == 1:
+                # write #
+                self.__write__(char=k)
+            if self.MBC[2] == 1:
+                # save #
+                self.__save__(char=k)
+            if self.MBC[3] == 1:
+                # delete #
+                self.__remove__()
+
+            if i > 520 or i == 203:
+                # print(self.structure.nodes)
+                # assert False
                 pass
-            #
-            # if i == 2050:
-            #     assert False
+            # print(self.structure.nodes)
