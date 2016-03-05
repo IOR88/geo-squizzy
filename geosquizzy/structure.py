@@ -43,9 +43,14 @@ class Tree:
         for x in self.nodes:
             new_key = {'keys': [], 'values': []}
             if self.nodes[x]['children'].__len__() == 0:
+                # print(self.nodes[x]['name'], self.nodes[x]['values'], '\n')
                 new_key['keys'].append(self.nodes[x]['name'])
                 new_key['values'] = self.nodes[x]['values']
                 last_parent = self.nodes[x]['parent']
+                # if last parent is None at very begining it mean that it is very low level prop but if doesn't have children
+                # then it has to be added as well
+                if last_parent is None:
+                    paths.append(new_key)
                 while not (last_parent is None):
                     new_key['keys'].append(self.nodes[last_parent]['name'])
                     if not (self.nodes[last_parent]['parent'] is None):
@@ -126,9 +131,9 @@ class GeoJSON:
 
             self.fsm.run(data=self.geojson)
 
-            for x in self.tree.get_all_leafs_paths():
-                print(x, '\n')
-            print(self.tree.nodes)
+            # for x in self.tree.get_all_leafs_paths():
+            #     print(x, '\n')
+            # print(self.tree.nodes)
         else:
             """
             geojson chunk mode

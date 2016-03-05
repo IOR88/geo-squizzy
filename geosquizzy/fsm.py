@@ -18,6 +18,7 @@ class GeojsonFiniteStateMachine:
             '0:': ['VAL', '0000', [1, 0, 0, 0], 0],
             '0,': ['DEL', '01', [0, 0, 0, 1], 0],
             '0}': ['DEL', '11', [0, 0, 0, 1], 0],
+            '0]': ['DEL', '11', [0, 0, 0, 1], 0],
             '0VAL"': ['EXP', '10', [0, 1, 0, 0], 0],
             '0VALDIG': ['DIG', '01', [0, 1, 0, 0], 0],
             '0VAL{': ['EXP', '01', [0, 1, 0, 0], 0],
@@ -140,7 +141,6 @@ class GeojsonFiniteStateMachine:
                     self.key += kwargs['char']
 
     def __save__(self, **kwargs):
-        # print(self.key)
         if self.command[0] == 'EXP':
                 # save values " some expression "
             if self.command[1] == '01':
@@ -168,15 +168,7 @@ class GeojsonFiniteStateMachine:
 
     def __remove__(self, **kwargs):
         if self.command[0] == 'DEL':
-            # remove last word and its values
-            # print(self.words)
-            # print(self.stack_structure)
-            # if self.command[1] == '01' and self.stack_structure[-1] == 'ARR':
-            #     pass
-            # else:
-            #     self.__remove__word__()
-            #     self.__clean__values__()
-            # print(self.words)
+
             if self.command[1] == '01':
                 self.__remove__word__()
                 self.__clean__values__()
@@ -185,11 +177,15 @@ class GeojsonFiniteStateMachine:
                 self.MBC = [0, 1, 0, 0]
             elif self.command[1] == '11':
                 # will remove two words, because we are closing object
-                self.__remove__word__()
-                self.__clean__values__()
+                try:
+                    if self.stack_structure[-1] != 'ARR':
+                        self.__remove__word__()
+                        self.__clean__values__()
+                except IndexError:
+                    self.__remove__word__()
+                    self.__clean__values__()
                 self.command = [None, '01', [1, 0, 0, 0], 0]
                 self.MBC = [1, 0, 0, 0]
-            # print(self.words)
 
     def run(self, **kwargs):
         """
@@ -199,10 +195,9 @@ class GeojsonFiniteStateMachine:
         self.MBC[0] = 1
 
         for i, k in enumerate(self.data):
-            # print(self.command, k, i)
 
             self.__modify_structure_stack__(arg=k)
-            # print(self.stack_structure)
+
             if self.MBC[0] == 1:
                 # interpret #
                 self.__interpret__(char=k)
@@ -215,12 +210,3 @@ class GeojsonFiniteStateMachine:
             if self.MBC[3] == 1:
                 # delete #
                 self.__remove__()
-
-            if i > 720 or i == 303:
-                print(self.structure.nodes)
-                assert False
-                pass
-            print('\n\n')
-            for x in self.structure.get_all_leafs_paths():
-                print(x, '\n')
-            # print(self.structure.nodes)
