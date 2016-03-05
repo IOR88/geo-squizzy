@@ -131,8 +131,8 @@ class GeoJSON:
 
             self.fsm.run(data=self.geojson)
 
-            for x in self.tree.get_all_leafs_paths():
-                print(x, '\n')
+            # for x in self.tree.get_all_leafs_paths():
+            #     print(x, '\n')
             # print(self.tree.nodes)
         else:
             """
