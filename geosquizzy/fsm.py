@@ -1,7 +1,9 @@
-import re, copy
+import re
+import copy
 
 
 class GeojsonFiniteStateMachine:
+    # TODO create separation between fsm core logic and temp data usage/functionality
     def __init__(self, *args, **kwargs):
         """
         @kwargs['structure'] Nodes/Tree json keys model representation
@@ -29,6 +31,10 @@ class GeojsonFiniteStateMachine:
         }
 
     def __create_unique_id__(self, key):
+        """
+        creating unique ids which represent keys in structure nodes, allow
+        us to store the same key names but which exist on different levels of doc structure
+        """
         if key == 0:
             'parent'
             try:
@@ -41,6 +47,12 @@ class GeojsonFiniteStateMachine:
             return self.words[-1]+str(self.words.__len__())
 
     def __get__command(self, char=None, mbc=None):
+        """
+        @:return one of command from lib_commands
+        for security we added deepcopy, because somewhere in the code, the lib_commands
+        because of reference was changed,
+        """
+        # TODO self.lib_commands should be immutable object, and all mutables should be placed in different structure
         try:
             return copy.deepcopy(self.lib_commands[mbc+char])
         except KeyError:
@@ -56,6 +68,13 @@ class GeojsonFiniteStateMachine:
                 self.stack_structure.pop()
             except IndexError:
                 pass
+
+    def __bring_fsm_initial_state(self):
+        return [None, '0', [1, 0, 0, 0], -1]
+
+    def __extend_key__(self, **kwargs):
+        if kwargs['char'] != '\n':
+            self.key += kwargs['char']
 
     def __add__word__(self):
         self.words.append(re.sub('"', '', self.key))
@@ -85,6 +104,10 @@ class GeojsonFiniteStateMachine:
         self.key = ''
 
     def __interpret__(self, **kwargs):
+        """
+        :param kwargs: arg = character
+        :return:None
+        """
         if not (self.command[0] is None):
             if self.command[0] == 'VAL':
                 # TODO TEMP DIGIT INTERPRET
@@ -107,13 +130,18 @@ class GeojsonFiniteStateMachine:
             self.MBC = self.command[2]
 
     def __write__(self, **kwargs):
+        """
+        :param kwargs: arg = character
+        :return:None
+        """
         if self.command[0] == 'EXP':
             if kwargs['char'] == '"':
                 # open expression
                 self.command[3] += 1
             if self.command[3] > 0:
                 # saving expression
-                self.key += kwargs['char']
+                # self.key += kwargs['char']
+                self.__extend_key__(**kwargs)
             if self.command[3] == 2:
                 # stop saving expression
                 self.MBC = [0, 0, 1, 0]
@@ -127,7 +155,8 @@ class GeojsonFiniteStateMachine:
                     self.key = ''
                     self.MBC = [0, 0, 1, 0]
                 else:
-                    self.key += kwargs['char']
+                    self.__extend_key__(**kwargs)
+                    # self.key += kwargs['char']
             elif self.command[1] == '01':
                 if kwargs['char'] == ',':
                     self.__add_value__()
@@ -138,9 +167,14 @@ class GeojsonFiniteStateMachine:
                     self.key = ''
                     self.MBC = [0, 0, 1, 0]
                 else:
-                    self.key += kwargs['char']
+                    self.__extend_key__(**kwargs)
+                    # self.key += kwargs['char']
 
     def __save__(self, **kwargs):
+        """
+        :param kwargs: arg = character
+        :return:None
+        """
         if self.command[0] == 'EXP':
                 # save values " some expression "
             if self.command[1] == '01':
@@ -148,17 +182,21 @@ class GeojsonFiniteStateMachine:
                 self.__add__word__()
                 # save key
                 self.__save__word__()
-                self.command[0], self.MBC = None, [1, 0, 0, 0]
+                self.command = self.__bring_fsm_initial_state()
+                self.MBC = self.command[2]
             elif self.command[1] == '10':
                 self.__add_value__()
                 self.__save_value__()
-                self.command[0], self.MBC = None, [1, 0, 0, 0]
+                self.command = self.__bring_fsm_initial_state()
+                self.MBC = self.command[2]
 
         elif self.command[0] == 'DIG':
             # save digits
             if self.command[1] == '11':
                 self.__save_value__()
-                self.command[0], self.MBC = None, [1, 0, 0, 0]
+                # self.command[0], self.command[2], self.MBC = None, [1, 0, 0, 0], [1, 0, 0, 0]
+                self.command = self.__bring_fsm_initial_state()
+                self.MBC = self.command[2]
             elif self.command[1] == '01':
                 self.__save_value__()
                 if kwargs['char'] == ',':
@@ -167,6 +205,10 @@ class GeojsonFiniteStateMachine:
                     self.command, self.MBC = ['DEL', '11', [0, 0, 0, 1], 0], [0, 0, 0, 1]
 
     def __remove__(self, **kwargs):
+        """
+        :param kwargs: arg = character
+        :return:None
+        """
         if self.command[0] == 'DEL':
 
             if self.command[1] == '01':
@@ -184,18 +226,21 @@ class GeojsonFiniteStateMachine:
                 except IndexError:
                     self.__remove__word__()
                     self.__clean__values__()
-                self.command = [None, '01', [1, 0, 0, 0], 0]
-                self.MBC = [1, 0, 0, 0]
+                self.command = self.__bring_fsm_initial_state()
+                self.MBC = self.command[2]
 
     def run(self, **kwargs):
         """
         @kwargs['data'] features array
+        @self.MBC[0] is set to 1 to run Interpret state as initial one
         """
         self.data = kwargs['data']
         self.MBC[0] = 1
 
         for i, k in enumerate(self.data):
-
+            # print(self.command, ' ', k, '  ', i)
+            # print(self.words)
+            # print('\n')
             self.__modify_structure_stack__(arg=k)
 
             if self.MBC[0] == 1:
@@ -210,3 +255,12 @@ class GeojsonFiniteStateMachine:
             if self.MBC[3] == 1:
                 # delete #
                 self.__remove__()
+
+            if i == 330:
+                # pass
+                # print(self.structure.nodes)
+                # TODO 282 should remove value
+                # TODO 296 ? not removed words ?
+                # TODO 322-323 key not added ?
+                # assert False
+                pass
