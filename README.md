@@ -39,5 +39,13 @@ geo_squizzy.get_results()
 
 * #### GeoSquizzy Methods
 
-  * GeoSquizzy.start(geojson=dict(), is_doc=bool())
+  * GeoSquizzy.start(geojson=str())
+  This method takes as arguments:
+
+@geojson which has to be python str object which in it's structure
+will reflect the GeoJSON structure.
+
+@is_doc python bool, default is None, setting this flag to True will prevent geo-squizzy from checking
+if provided doc is a valid doc (validity here is very poor, checking only base structure of doc) and speed up
+whole squizzy process
 
