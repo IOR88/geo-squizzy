@@ -34,3 +34,5 @@ Consume
 ```python
 geo_squizzy.get_results()
 ```
+
+### Documentation
