@@ -17,13 +17,10 @@ Import
 from geosquizzy.squizzy import GeoSquizzy
 ```
 
-Initialization
+Initialization(Currently support only for GeoJSON docs type FeatureCollection)
 ```python
 geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
 ```
-
-
-Geojson data has to be a valid geojson document type="FeatureCollection"
 
 Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
 and execute start() method
@@ -36,6 +33,3 @@ Consume
 ```python
 geo_squizzy.get_results()
 ```
-
-
-
