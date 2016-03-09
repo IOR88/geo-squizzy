@@ -3,7 +3,9 @@ import copy
 
 
 class GeojsonFiniteStateMachine:
-    # TODO create separation between fsm core logic and temp data usage/functionality
+    # TODO create separation between fsm core logic and temp data
+    # usage/functionality
+
     def __init__(self, *args, **kwargs):
         """
         @kwargs['structure'] Nodes/Tree json keys model representation
@@ -32,29 +34,31 @@ class GeojsonFiniteStateMachine:
 
     def __create_unique_id__(self, key):
         """
-        creating unique ids which represent keys in structure nodes, allow
-        us to store the same key names but which exist on different levels of doc structure
+        Creating unique ids which represent keys in structure nodes,
+        allowing us to store the same key names but which exist
+        on different levels of doc structure
         """
         if key == 0:
             'parent'
             try:
                 name = self.words[-2]
-                return name+str(self.words.__len__()-1)
+                return name + str(self.words.__len__() - 1)
             except IndexError:
                 return None
         elif key == 1:
             'children'
-            return self.words[-1]+str(self.words.__len__())
+            return self.words[-1] + str(self.words.__len__())
 
     def __get__command(self, char=None, mbc=None):
         """
         @:return one of command from lib_commands
-        for security we added deepcopy, because somewhere in the code, the lib_commands
-        because of reference was changed,
+        for security we added deepcopy, because somewhere in the code,
+        the lib_commands because of reference was changed,
         """
-        # TODO self.lib_commands should be immutable object, and all mutables should be placed in different structure
+        # TODO self.lib_commands should be immutable object, and all mutables
+        # should be placed in different structure
         try:
-            return copy.deepcopy(self.lib_commands[mbc+char])
+            return copy.deepcopy(self.lib_commands[mbc + char])
         except KeyError:
             return self.command
 
@@ -92,7 +96,9 @@ class GeojsonFiniteStateMachine:
         self.values = []
 
     def __save_value__(self):
-        self.structure.add_leaf_values(id=self.__create_unique_id__(1), values=self.values)
+        self.structure.add_leaf_values(
+            id=self.__create_unique_id__(1),
+            values=self.values)
         self.key = ''
 
     def __save__word__(self):
@@ -112,18 +118,22 @@ class GeojsonFiniteStateMachine:
             if self.command[0] == 'VAL':
                 # TODO TEMP DIGIT INTERPRET
                 if kwargs['char'] == '-' or kwargs['char'].isdigit():
-                    self.command = self.__get__command(char=self.command[0]+'DIG', mbc='0')
+                    self.command = self.__get__command(
+                        char=self.command[0] + 'DIG', mbc='0')
                     self.MBC = self.command[2]
                 else:
-                    self.command = self.__get__command(char=self.command[0]+kwargs['char'], mbc='0')
+                    self.command = self.__get__command(
+                        char=self.command[0] + kwargs['char'], mbc='0')
                     self.MBC = self.command[2]
             elif self.command[0] == 'ARR':
                 # TODO TEMP DIGIT INTERPRET
                 if kwargs['char'] == '-' or kwargs['char'].isdigit():
-                    self.command = self.__get__command(char=self.command[0]+'DIG', mbc='0')
+                    self.command = self.__get__command(
+                        char=self.command[0] + 'DIG', mbc='0')
                     self.MBC = self.command[2]
                 else:
-                    self.command = self.__get__command(char=self.command[0]+kwargs['char'], mbc='0')
+                    self.command = self.__get__command(
+                        char=self.command[0] + kwargs['char'], mbc='0')
                     self.MBC = self.command[2]
         else:
             self.command = self.__get__command(char=kwargs['char'], mbc='0')
@@ -200,9 +210,15 @@ class GeojsonFiniteStateMachine:
             elif self.command[1] == '01':
                 self.__save_value__()
                 if kwargs['char'] == ',':
-                    self.command, self.MBC = ['DEL', '01', [0, 0, 0, 1], 0], [0, 0, 0, 1]
+                    self.command, self.MBC = [
+                        'DEL', '01', [
+                            0, 0, 0, 1], 0], [
+                        0, 0, 0, 1]
                 elif kwargs['char'] == '}':
-                    self.command, self.MBC = ['DEL', '11', [0, 0, 0, 1], 0], [0, 0, 0, 1]
+                    self.command, self.MBC = [
+                        'DEL', '11', [
+                            0, 0, 0, 1], 0], [
+                        0, 0, 0, 1]
 
     def __remove__(self, **kwargs):
         """
