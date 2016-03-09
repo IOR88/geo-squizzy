@@ -11,7 +11,6 @@ def get_geojson(url=None):
     get url data and decode it
     """
     res = urlopen(url=url)
-    with res as f:
-        while True:
-            return f.read().decode('utf-8')
+    return res.read().decode('utf-8')
+    # http://stackoverflow.com/questions/30627937/tracebaclk-attributeerroraddinfourl-instance-has-no-attribute-exit
 
