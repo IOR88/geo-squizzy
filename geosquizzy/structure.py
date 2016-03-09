@@ -71,7 +71,8 @@ class Tree:
 
 class FeaturesTree(Tree):
     def __init__(self, *args, **kwargs):
-        super(FeaturesTree, self).__init__(*args, **kwargs)
+        # super(FeaturesTree, self).__init__(*args, **kwargs)
+        Tree.__init__(self, *args, **kwargs)
 
 
 class GeoJSON:
