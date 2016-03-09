@@ -49,6 +49,6 @@ whole squizzy process
 
 **GeoSquizzy.get_results()**  
 @return python list() object which consist of dict() elements where each has this structure
-{'values': ['-168.8205037850924', ' 131.69420530060995'], 'keys': ['coordinates', 'geometry', 'features']}
-@values example values of @keys[0]
+{'values': ['-168.8205037850924', ' 131.69420530060995'], 'keys': ['coordinates', 'geometry', 'features']}  
+@values example values of @keys[0]  
 @keys a list of founded keys, presented in descending order(leaf -> root)  
