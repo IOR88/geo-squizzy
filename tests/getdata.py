@@ -6,11 +6,15 @@ except ImportError:
     from urllib import urlopen
 
 
-def get_geojson(url=None):
+def get_geojson(url=None, path=None):
     """
     get url data and decode it
     """
-    res = urlopen(url=url)
-    return res.read().decode('utf-8')
-    # http://stackoverflow.com/questions/30627937/tracebaclk-attributeerroraddinfourl-instance-has-no-attribute-exit
+    if url is not None:
+        res = urlopen(url=url)
+        return res.read().decode('utf-8')
+        # http://stackoverflow.com/questions/30627937/tracebaclk-attributeerroraddinfourl-instance-has-no-attribute-exit
+    else:
+        file = open(path, 'r')
+        return file.read()
 
