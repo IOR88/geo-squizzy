@@ -39,8 +39,9 @@ geo_squizzy.get_results()
 
 #### GeoSquizzy Methods
 
-* GeoSquizzy.start(geojson=str(), is_doc=bool())
+**GeoSquizzy.start(geojson=str(), is_doc=bool())**
 This method takes as arguments:
+
 @geojson which has to be python str object which in it's structure
 will reflect the GeoJSON structure.
 
