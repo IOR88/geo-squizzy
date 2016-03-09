@@ -1,17 +1,14 @@
 # geo-squizzy
 
-### General
-===================
+#### General  
 0. last version geo-squizzy-0.1.1(stable)
 1. no external dependencies
 3. tested successfully with python3.3 version
 
-### Installation
-===================
+### Installation  
 1.pip install geo-squizzy
 
-### Demo
-===================
+#### Demo  
 **See the <a href="http://geo.geschenk.ior88.megiteam.pl/">DEMO</a> page.**
 
 ### Usage
