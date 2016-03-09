@@ -99,8 +99,8 @@ class GeoJSON:
         self.is_doc = kwargs.get('is_doc', False)
         self.__read_geojson__()
 
-    def get_keys(self):
-        pass
+    def get_results(self):
+        return self.tree.get_all_leafs_paths()
 
     def __read_geojson__(self):
         """
@@ -120,24 +120,7 @@ class GeoJSON:
             # patterns = [r'(?:[,\s]*)"features":(?:[\s]*)',
             #             r'(?:[,\s]*)"type":(?:[\s]*)"FeatureCollection"(?:[,\s]*)']
             # features_string = utils.get_string_slice(patterns, self.geojson)
-
-            # TODO test
-            test_full_features = \
-                '[{"geometry": ' \
-                '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
-                '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
-                '"type": "Feature"}]'
-
-            test2_full_features = '[{"type": "Feature","geometry": {"type": "Point","coordinates": [ \n'\
-                '-122.65335738658904,45.512083676585156]},"properties": {"name": "Hungry Heart Cupcakes",'\
-                '"address": "1212 SE Hawthorne Boulevard","website": "http://www.hungryheartcupcakes.com",'\
-                '"gluten free": "no","open1": "Monday - Sunday, 11am - 9pm"}}]'
-
             self.fsm.run(data=self.geojson)
-
-            # for x in self.tree.get_all_leafs_paths():
-            #     print(x, '\n')
-            # print(self.tree.nodes)
         else:
             """
             geojson chunk mode
