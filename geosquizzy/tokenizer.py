@@ -30,6 +30,7 @@ class JsonTokenizer:
              features array in string format
     name  -> JsonTokenizer
     """
+
     def __init__(self, *args, **kwargs):
         """
         kwargs['structure'] -> instance of class FeaturesTree
@@ -81,7 +82,7 @@ class JsonTokenizer:
             if not re.match(self.tokens['QUOTATION_MARKS'], x):
                 word += x
             else:
-                data = data[i+1:-1]
+                data = data[i + 1:-1]
                 break
         return word, data
 
@@ -99,26 +100,24 @@ class JsonTokenizer:
             #         #print(word, '\n')
             #         word = str()
             #         self.STATUS = 0
-            if self.STATUS == 0 and re.match(self.tokens['CURLY_BRACKET_O'], x):
+            if self.STATUS == 0 and re.match(
+                    self.tokens['CURLY_BRACKET_O'], x):
                 """new json object"""
                 self.STATUS = 1
             elif self.STATUS == 1 and re.match(self.tokens['QUOTATION_MARKS'], x):
                 """json object key starting"""
                 print(data.__len__())
-                word, data = self.catch_key(data[i+1:-1])
+                word, data = self.catch_key(data[i + 1:-1])
                 print(word, data.__len__(), data[0])
                 # next option is
                 # 1" VALUE "
                 # 2{ nested value and we could go back to second if
                 # 3[ which could have few possibilities
-                    #1 [1123,12323] -> coordinates
-                    #2 {} collection of objects
-                    #3 [[],[]] collection of collectiond
+                # 1 [1123,12323] -> coordinates
+                # 2 {} collection of objects
+                # 3 [[],[]] collection of collectiond
                 #assert False
                 pass
         end = time.time()
         print(data.__len__())
-        print(end-start)
-
-
-
+        print(end - start)

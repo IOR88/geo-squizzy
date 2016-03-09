@@ -5,6 +5,7 @@ import geosquizzy.fsm as fsm
 
 
 class Tree:
+
     def __init__(self, *args, **kwargs):
         self.leaf = dict({'id': None, 'name': None, 'children': [], 'level': 0,
                           'parent': None, 'completed': False, 'values': []})
@@ -70,11 +71,14 @@ class Tree:
 
 
 class FeaturesTree(Tree):
+
     def __init__(self, *args, **kwargs):
-        super(FeaturesTree, self).__init__(*args, **kwargs)
+        # super(FeaturesTree, self).__init__(*args, **kwargs)
+        Tree.__init__(self, *args, **kwargs)
 
 
 class GeoJSON:
+
     def __init__(self, *args, **kwargs):
         self.type = kwargs['geojson_doc_type']
         self.data = dict({"type": self.type, "features": []})
@@ -119,15 +123,15 @@ class GeoJSON:
 
             # TODO test
             test_full_features = \
-               '[{"geometry": ' \
-               '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
-               '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
-               '"type": "Feature"}]'
+                '[{"geometry": ' \
+                '{"type": "Point", "coordinates": [-122.93770201248995, 146.32791746493376]}, ' \
+                '"properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"}, ' \
+                '"type": "Feature"}]'
 
             test2_full_features = '[{"type": "Feature","geometry": {"type": "Point","coordinates": [ \n'\
-                    '-122.65335738658904,45.512083676585156]},"properties": {"name": "Hungry Heart Cupcakes",'\
-                    '"address": "1212 SE Hawthorne Boulevard","website": "http://www.hungryheartcupcakes.com",'\
-                    '"gluten free": "no","open1": "Monday - Sunday, 11am - 9pm"}}]'
+                '-122.65335738658904,45.512083676585156]},"properties": {"name": "Hungry Heart Cupcakes",'\
+                '"address": "1212 SE Hawthorne Boulevard","website": "http://www.hungryheartcupcakes.com",'\
+                '"gluten free": "no","open1": "Monday - Sunday, 11am - 9pm"}}]'
 
             self.fsm.run(data=self.geojson)
 

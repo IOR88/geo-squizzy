@@ -3,6 +3,7 @@ from utils import *
 
 
 class Feature:
+
     def __init__(self, *args, **kwargs):
         """
         :param args:
@@ -37,6 +38,7 @@ class Feature:
 
 
 class PointFeature(Feature):
+
     def __init__(self, *args, **kwargs):
         super(PointFeature, self).__init__(*args, **kwargs)
         self.name = "Point"
@@ -84,10 +86,14 @@ class MultiPolygonFeature(Feature):
 
 
 if __name__ == "__main__":
-    data_ok = {"geometry":
-                {"type": "Poin", "coordinates": [-122.93770201248995, 146.32791746493376]},
-            "properties": {"code": 4402, "name": "BZgtQyEu", "citizens": 351641, "country": "WKyCMBr"},
-            "type": "Feature"}
+    data_ok = {"geometry": {"type": "Poin",
+                            "coordinates": [-122.93770201248995,
+                                            146.32791746493376]},
+               "properties": {"code": 4402,
+                              "name": "BZgtQyEu",
+                              "citizens": 351641,
+                              "country": "WKyCMBr"},
+               "type": "Feature"}
 
     test = PointFeature(data=data_ok)
     test.validate()
