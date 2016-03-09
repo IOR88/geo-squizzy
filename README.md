@@ -10,6 +10,9 @@
 
 1.pip install geo-squizzy
 
+### Demo
+**See the <a href="http://geo.geschenk.ior88.megiteam.pl/">DEMO</a> page.**
+
 ### Usage
 
 Import
