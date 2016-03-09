@@ -20,7 +20,8 @@ def get_string_slice(patterns, arg):
         try:
             pattern = patterns.pop()
             parts = re.split(pattern, arg, maxsplit=1)
-            arg = (parts[0].__len__() > parts[1].__len__()) and parts[0] or parts[1]
+            arg = (parts[0].__len__() > parts[
+                   1].__len__()) and parts[0] or parts[1]
         except IndexError:
             break
     return arg

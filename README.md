@@ -13,8 +13,15 @@
 ### Usage
 
 ```python
+
+try:
+    from urllib.request import urlopen
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+    from urllib import urlopen
+
 from geosquizzy.squizzy import GeoSquizzy
-from urllib import request
 
 """
 Example way to get data, important to decode it on utf-8 format
@@ -25,10 +32,8 @@ def get_geojson(url=None):
     """
     get url data and decode it
     """
-    res = request.urlopen(url=url)
-    with res as f:
-        while True:
-            return f.read().decode('utf-8')
+    res = urlopen(url=url)
+    return res.read().decode('utf-8')
 
 
 geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
@@ -38,17 +43,15 @@ geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
 Geojson data has to be a valid geojson document type="FeatureCollection"
 """
 
-data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/dump1000.json")
+data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/ExampleDataPoint.json")
 geo_squizzy.geo_structure.start(geojson=data, is_doc=True)
 
 
 """
-To get all keys, a results will contain an [{}...] where {'values': ['Point'], 'keys': ['type', 'geometry', 'features']}
-@values potential value that can be search for
-@keys a way from the leaf(left) to root(right)
+To get all keys
 """
-geo_squizzy.geo_structure.tree.get_all_leafs_paths()
-
+for x in geo_squizzy.geo_structure.tree.get_all_leafs_paths():
+    print(x, '\n')
 
 ```
 
