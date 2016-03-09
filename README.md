@@ -44,13 +44,13 @@ Geojson data has to be a valid geojson document type="FeatureCollection"
 """
 
 data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/ExampleDataPoint.json")
-geo_squizzy.geo_structure.start(geojson=data, is_doc=True)
+geo_squizzy.start(geojson=data, is_doc=True)
 
 
 """
 To get all keys
 """
-for x in geo_squizzy.geo_structure.tree.get_all_leafs_paths():
+for x in geo_squizzy.get_results()::
     print(x, '\n')
 
 ```
