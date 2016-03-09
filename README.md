@@ -36,3 +36,8 @@ geo_squizzy.get_results()
 ```
 
 ### Documentation
+
+#### GeoSquizzy Methods
+
+##### GeoSquizzy.start(geojson=dict(), is_doc=bool())
+
