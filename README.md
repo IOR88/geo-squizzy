@@ -25,7 +25,8 @@ geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
 Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
 and execute start() method
 ```python
-data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/ExampleDataPoint.json")
+data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/
+                  master/build_big_data/test_data/ExampleDataPoint.json")
 geo_squizzy.start(geojson=data, is_doc=True)
 ```
 
