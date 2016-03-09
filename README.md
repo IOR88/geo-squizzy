@@ -1,19 +1,21 @@
 # geo-squizzy
 
 ### General
-
+===================
 0. last version geo-squizzy-0.1.1(stable)
 1. no external dependencies
 3. tested successfully with python3.3 version
 
 ### Installation
-
+===================
 1.pip install geo-squizzy
 
 ### Demo
+===================
 **See the <a href="http://geo.geschenk.ior88.megiteam.pl/">DEMO</a> page.**
 
 ### Usage
+===================
 
 Import
 ```python
@@ -39,7 +41,7 @@ geo_squizzy.get_results()
 ```
 
 ### Documentation
-
+===================
 #### GeoSquizzy Methods
 
 **GeoSquizzy.start(geojson=str(), is_doc=bool())**  
