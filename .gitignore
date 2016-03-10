@@ -8,3 +8,4 @@ geo_squizzy.egg-info
 build_big_data/data/*
 research
 todo.txt
+geosquizzy/testing.py

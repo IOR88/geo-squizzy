@@ -9,8 +9,8 @@ if os.path.exists('README.txt'):
 # dev version syntax 0.1.dev4
 setup(
     name='geo-squizzy',
-    version='0.1.1',
-    packages=find_packages(exclude=['research*']),
+    version='0.1.2',
+    packages=find_packages(exclude=['research*', 'tests*', 'geosquizzy/testing.py']),
     license='MIT',
     description='GeoJSON-unknown-documents-model-creation',
     long_description=long_description,

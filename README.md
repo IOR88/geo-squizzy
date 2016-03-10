@@ -1,59 +1,56 @@
 # geo-squizzy
 
-### Implementations
-0. https://github.com/LowerSilesians/geo-geschenk
 
-### General
-
-0. last version geo-squizzy-0.1.1(stable)
+#### General  
+0. last version geo-squizzy-0.1.2(stable)
 1. no external dependencies
-3. tested successfully with python3.3 version
 
-### Installation
-
+### Installation  
 1.pip install geo-squizzy
 
-### Usage
+#### Demo  
+**See the <a href="http://geo.geschenk.ior88.megiteam.pl/">DEMO</a> page.**
 
+### Usage
+===================
+
+Import
 ```python
 from geosquizzy.squizzy import GeoSquizzy
-from urllib import request
-
-"""
-Example way to get data, important to decode it on utf-8 format
-"""
-
-
-def get_geojson(url=None):
-    """
-    get url data and decode it
-    """
-    res = request.urlopen(url=url)
-    with res as f:
-        while True:
-            return f.read().decode('utf-8')
-
-
-geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
-
-
-"""
-Geojson data has to be a valid geojson document type="FeatureCollection"
-"""
-
-data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/master/build_big_data/test_data/dump1000.json")
-geo_squizzy.geo_structure.start(geojson=data, is_doc=True)
-
-
-"""
-To get all keys, a results will contain an [{}...] where {'values': ['Point'], 'keys': ['type', 'geometry', 'features']}
-@values potential value that can be search for
-@keys a way from the leaf(left) to root(right)
-"""
-geo_squizzy.geo_structure.tree.get_all_leafs_paths()
-
-
 ```
 
+Initialization(Currently support only for GeoJSON docs type FeatureCollection)
+```python
+geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
+```
 
+Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
+and execute start() method
+```python
+data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/
+                  master/build_big_data/test_data/ExampleDataPoint.json")
+geo_squizzy.start(geojson=data, is_doc=True)
+```
 
+Consume
+```python
+geo_squizzy.get_results()
+```
+
+### Documentation
+===================
+#### GeoSquizzy Methods
+
+**GeoSquizzy.start(geojson=str(), is_doc=bool())**  
+@geojson which has to be python str object which in it's structure
+will reflect the GeoJSON structure.  
+
+@is_doc python bool, default is None, setting this flag to True will prevent geo-squizzy from checking
+if provided doc is a valid doc (validity here is very poor, checking only base structure of doc) and speed up
+whole squizzy process  
+
+**GeoSquizzy.get_results()**  
+@return python list() object which consist of dict() elements where each has this structure  
+{'values': ['-168.8205037850924', ' 131.69420530060995'], 'keys': ['coordinates', 'geometry', 'features']}  
+@values example values of @keys[0]  
+@keys a list of founded keys, presented in descending order(leaf -> root)  
