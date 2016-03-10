@@ -1,10 +1,10 @@
 import re
 import copy
 
+# TODO separation, modularization
+
 
 class GeojsonFiniteStateMachine:
-    # TODO create separation between fsm core logic and temp data
-    # usage/functionality
 
     def __init__(self, *args, **kwargs):
         """
@@ -97,8 +97,8 @@ class GeojsonFiniteStateMachine:
 
     def __save_value__(self):
         self.structure.add_leaf_values(
-            id=self.__create_unique_id__(1),
-            values=self.values)
+            leaf_id=self.__create_unique_id__(1),
+            leaf_values=self.values)
         self.key = ''
 
     def __save__word__(self):

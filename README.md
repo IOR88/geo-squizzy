@@ -15,12 +15,12 @@
 
 Import
 ```python
-from geosquizzy.squizzy import GeoSquizzy
+from geosquizzy.geosquizzy import GeoSquizzy
 ```
 
 Initialization(Currently support only for GeoJSON docs type FeatureCollection)
 ```python
-geo_squizzy = GeoSquizzy(geojson_doc_type="FeatureCollection")
+geo_squizzy = GeoSquizzy()
 ```
 
 Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
@@ -28,7 +28,7 @@ and execute start() method
 ```python
 data = get_geojson(url="https://raw.githubusercontent.com/LowerSilesians/geo-squizzy/
                   master/build_big_data/test_data/ExampleDataPoint.json")
-geo_squizzy.start(geojson=data, is_doc=True)
+geo_squizzy.start(geojson=data)
 ```
 
 Consume

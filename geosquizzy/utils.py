@@ -25,7 +25,3 @@ def get_string_slice(patterns, arg):
         except IndexError:
             break
     return arg
-
-
-# TODO some util to remove white spaces around value
-# TODO could be use after traversing doc as cleaning function or sth
