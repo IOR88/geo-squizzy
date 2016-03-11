@@ -9,6 +9,7 @@ class CommandsFiniteStateMachine:
 
     def __init__(self, *args, **kwargs):
         self.commands = {
+            '00':      (None,  '0',    (0, 0, 0, 0)),  # starting and default command
             '0{':      ('EXP', '01',   (0, 1, 0, 0)),
             '0:':      ('VAL', '0000', (1, 0, 0, 0)),
             '0,':      ('DEL', '01',   (0, 0, 0, 1)),

@@ -1,40 +1,31 @@
 import re
 
 from geosquizzy.fsm.utils import create_unique_id
-from geosquizzy.fsm.data import DataPortFiniteStateMachine
+from geosquizzy.fsm.data import (DataPortFiniteStateMachine, DataAnatomyFiniteStateMachine)
 from geosquizzy.fsm.commands import CommandsFiniteStateMachine
+from geosquizzy.fsm.states import (interpret, write, save, remove)
 
 
 class GeojsonFiniteStateMachine:
+    # TODO migrate all states into
 
     def __init__(self, *args, **kwargs):
         """
-        @kwargs['structure'] Nodes/Tree json keys model representation
+        @kwargs['structure'] FeaturesTree Class
         """
         self.DataPort = DataPortFiniteStateMachine(data=kwargs['structure'])
+        self.DataAnatomy = DataAnatomyFiniteStateMachine()
+        self.Com = CommandsFiniteStateMachine()
         self.structure = kwargs['structure']
         self.MBC = [1, 0, 0, 0]
-        self.stack_structure = []
-        self.command = [None, '0', [0, 0, 0, 0], 0]
+        self.command = self.Com.get_command(char='0', mbc=self.MBC.index(1))
         self.words = []
         self.values = []
         self.key = ''
-        self.Com = CommandsFiniteStateMachine()
-
-    def __modify_structure_stack__(self, **kwargs):
-        if kwargs['arg'] == '[':
-            self.stack_structure.append('ARR')
-        elif kwargs['arg'] == '{':
-            self.stack_structure.append('OBJ')
-        elif kwargs['arg'] == ']' or kwargs['arg'] == '}':
-            try:
-                self.stack_structure.pop()
-            except IndexError:
-                pass
 
     @staticmethod
     def __bring_fsm_initial_state():
-        return [None, '0', [1, 0, 0, 0], -1]
+        return None, '0', [1, 0, 0, 0]
 
     def __extend_key__(self, **kwargs):
         if kwargs['char'] != '\n':
@@ -100,6 +91,8 @@ class GeojsonFiniteStateMachine:
             self.MBC = self.command[2]
 
     def __write__(self, **kwargs):
+        # TODO IndexError: tuple index out of range -> command does not have index 3 now, object was set to immutable type and
+        # TODO and any mutable values were removed,
         """
         :param kwargs: arg = character
         :return:None
@@ -196,7 +189,7 @@ class GeojsonFiniteStateMachine:
             elif self.command[1] == '11':
                 # will remove two words, because we are closing object
                 try:
-                    if self.stack_structure[-1] != 'ARR':
+                    if self.DataAnatomy.peek() != '1':
                         self.__remove__word__()
                         self.__clean__values__()
                 except IndexError:
@@ -210,14 +203,14 @@ class GeojsonFiniteStateMachine:
         @kwargs['data'] features array
         @self.MBC[0] is set to 1 to run Interpret state as initial one
         """
-        self.data = kwargs['data']
+        self.data = kwargs['data']  # TODO move to DataPort var
         self.MBC[0] = 1
 
         for i, k in enumerate(self.data):
             # print(self.command, ' ', k, '  ', i)
             # print(self.words)
             # print('\n')
-            self.__modify_structure_stack__(arg=k)
+            self.DataAnatomy.update_structure(char=k)
 
             if self.MBC[0] == 1:
                 # interpret #
