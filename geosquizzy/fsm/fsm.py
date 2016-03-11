@@ -1,7 +1,8 @@
 import re
-import copy
 
-# TODO separation, modularization
+from geosquizzy.fsm.utils import create_unique_id
+from geosquizzy.fsm.data import DataPortFiniteStateMachine
+from geosquizzy.fsm.commands import CommandsFiniteStateMachine
 
 
 class GeojsonFiniteStateMachine:
@@ -10,57 +11,15 @@ class GeojsonFiniteStateMachine:
         """
         @kwargs['structure'] Nodes/Tree json keys model representation
         """
+        self.DataPort = DataPortFiniteStateMachine(data=kwargs['structure'])
         self.structure = kwargs['structure']
-        self.MBC = [0, 0, 0, 0]
+        self.MBC = [1, 0, 0, 0]
         self.stack_structure = []
-        self.command = [None, '0', [0, 0, 0, 0], -1]
+        self.command = [None, '0', [0, 0, 0, 0], 0]
         self.words = []
         self.values = []
         self.key = ''
-        self.lib_commands = {
-            '0{': ['EXP', '01', [0, 1, 0, 0], 0],
-            '0:': ['VAL', '0000', [1, 0, 0, 0], 0],
-            '0,': ['DEL', '01', [0, 0, 0, 1], 0],
-            '0}': ['DEL', '11', [0, 0, 0, 1], 0],
-            '0]': ['DEL', '11', [0, 0, 0, 1], 0],
-            '0VAL"': ['EXP', '10', [0, 1, 0, 0], 0],
-            '0VALDIG': ['DIG', '01', [0, 1, 0, 0], 0],
-            '0VAL{': ['EXP', '01', [0, 1, 0, 0], 0],
-            '0VAL[': ['ARR', '10', [1, 0, 0, 0], 0],
-            '0ARR"': ['EXP', '11', [0, 1, 0, 0], 0],
-            '0ARR{': ['EXP', '01', [0, 1, 0, 0], 0],
-            '0ARRDIG': ['DIG', '11', [0, 1, 0, 0], 0]
-        }
-
-    def __create_unique_id__(self, key):
-        """
-        Creating unique ids which represent keys in structure nodes,
-        allowing us to store the same key names but which exist
-        on different levels of doc structure
-        """
-        if key == 0:
-            'parent'
-            try:
-                name = self.words[-2]
-                return name + str(self.words.__len__() - 1)
-            except IndexError:
-                return None
-        elif key == 1:
-            'children'
-            return self.words[-1] + str(self.words.__len__())
-
-    def __get__command(self, char=None, mbc=None):
-        """
-        @:return one of command from lib_commands
-        for security we added deepcopy, because somewhere in the code,
-        the lib_commands because of reference was changed,
-        """
-        # TODO self.lib_commands should be immutable object, and all mutables
-        # should be placed in different structure
-        try:
-            return copy.deepcopy(self.lib_commands[mbc + char])
-        except KeyError:
-            return self.command
+        self.Com = CommandsFiniteStateMachine()
 
     def __modify_structure_stack__(self, **kwargs):
         if kwargs['arg'] == '[':
@@ -73,7 +32,8 @@ class GeojsonFiniteStateMachine:
             except IndexError:
                 pass
 
-    def __bring_fsm_initial_state(self):
+    @staticmethod
+    def __bring_fsm_initial_state():
         return [None, '0', [1, 0, 0, 0], -1]
 
     def __extend_key__(self, **kwargs):
@@ -97,15 +57,15 @@ class GeojsonFiniteStateMachine:
 
     def __save_value__(self):
         self.structure.add_leaf_values(
-            leaf_id=self.__create_unique_id__(1),
+            leaf_id=create_unique_id(self.words, 1),
             leaf_values=self.values)
         self.key = ''
 
     def __save__word__(self):
-        node = self.structure.prepare_new_leaf(id=self.__create_unique_id__(1),
+        node = self.structure.prepare_new_leaf(id=create_unique_id(self.words, 1),
                                                name=self.words[-1],
                                                level=self.words.__len__(),
-                                               parent=self.__create_unique_id__(0))
+                                               parent=create_unique_id(self.words, 0))
         self.structure.add_leaf(leaf=node)
         self.key = ''
 
@@ -118,25 +78,25 @@ class GeojsonFiniteStateMachine:
             if self.command[0] == 'VAL':
                 # TODO TEMP DIGIT INTERPRET
                 if kwargs['char'] == '-' or kwargs['char'].isdigit():
-                    self.command = self.__get__command(
-                        char=self.command[0] + 'DIG', mbc='0')
+                    self.command = self.Com.get_command(
+                        char=self.command[0] + 'DIG', mbc=self.MBC.index(1))
                     self.MBC = self.command[2]
                 else:
-                    self.command = self.__get__command(
-                        char=self.command[0] + kwargs['char'], mbc='0')
+                    self.command = self.Com.get_command(
+                        char=self.command[0] + kwargs['char'], mbc=self.MBC.index(1))
                     self.MBC = self.command[2]
             elif self.command[0] == 'ARR':
                 # TODO TEMP DIGIT INTERPRET
                 if kwargs['char'] == '-' or kwargs['char'].isdigit():
-                    self.command = self.__get__command(
-                        char=self.command[0] + 'DIG', mbc='0')
+                    self.command = self.Com.get_command(
+                        char=self.command[0] + 'DIG', mbc=self.MBC.index(1))
                     self.MBC = self.command[2]
                 else:
-                    self.command = self.__get__command(
-                        char=self.command[0] + kwargs['char'], mbc='0')
+                    self.command = self.Com.get_command(
+                        char=self.command[0] + kwargs['char'], mbc=self.MBC.index(1))
                     self.MBC = self.command[2]
         else:
-            self.command = self.__get__command(char=kwargs['char'], mbc='0')
+            self.command = self.Com.get_command(char=kwargs['char'], mbc=self.MBC.index(1))
             self.MBC = self.command[2]
 
     def __write__(self, **kwargs):
