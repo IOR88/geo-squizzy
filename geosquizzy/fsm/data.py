@@ -14,6 +14,48 @@ class DataPortFiniteStateMachine:
     def __init__(self, *args, **kwargs):
         self.structure = kwargs.get('data', {})
 
+    # TODO implement this methods for FSM ->
+
+     # TODO to DataPortFiniteStateMachine
+    # self.structure = kwargs['structure']
+    # self.words = []
+    # self.values = []
+    # self.key = ''
+
+
+    # def __extend_key__(self, **kwargs):
+    #     if kwargs['char'] != '\n':
+    #         self.key += kwargs['char']
+    #
+    # def __add__word__(self):
+    #     self.words.append(re.sub('"', '', self.key))
+    #
+    # def __remove__word__(self):
+    #     try:
+    #         self.words.pop()
+    #     except IndexError:
+    #         pass
+    #
+    # def __add_value__(self):
+    #     self.values.append(re.sub('"', '', self.key))
+    #
+    # def __clean__values__(self):
+    #     self.values = []
+    #
+    # def __save_value__(self):
+    #     self.structure.add_leaf_values(
+    #         leaf_id=create_unique_id(self.words, 1),
+    #         leaf_values=self.values)
+    #     self.key = ''
+    #
+    # def __save__word__(self):
+    #     node = self.structure.prepare_new_leaf(id=create_unique_id(self.words, 1),
+    #                                            name=self.words[-1],
+    #                                            level=self.words.__len__(),
+    #                                            parent=create_unique_id(self.words, 0))
+    #     self.structure.add_leaf(leaf=node)
+    #     self.key = ''
+
 
 class DataAnatomyFiniteStateMachine(Stack):
 

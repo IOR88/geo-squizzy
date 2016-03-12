@@ -14,3 +14,20 @@ def create_unique_id(words, key):
     elif key == 1:
         'children'
         return words[-1] + str(words.__len__())
+
+
+class WatchClass:
+    """
+    Watch will be triggered by setitem assignment x['attr'] = new
+    if so happens then watch.check will be invoked
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.watch = kwargs['watch']
+        self.value = kwargs['value']
+        self.old_value = None
+
+    def __setitem__(self, key, value):
+        self.old_value = self.value
+        self.value = value
+        self.watch.check(old_value=self.old_value, new_value=self.value)
