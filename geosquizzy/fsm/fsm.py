@@ -1,5 +1,3 @@
-import re
-
 from geosquizzy.fsm.utils import (create_unique_id, WatchClass)
 from geosquizzy.fsm.data import (DataPortFiniteStateMachine, DataAnatomyFiniteStateMachine)
 from geosquizzy.fsm.commands import CommandsFiniteStateMachine
@@ -17,7 +15,7 @@ class GeojsonFiniteStateMachine:
         """
         :param kwargs['structure']: FeaturesTree Class
         """
-        self.DataPort = DataPortFiniteStateMachine(data=kwargs['structure'])
+        self.DataPort = DataPortFiniteStateMachine(structure=kwargs['structure'])
         self.DataAnatomy = DataAnatomyFiniteStateMachine()
         self.Com = CommandsFiniteStateMachine()
 
@@ -28,9 +26,9 @@ class GeojsonFiniteStateMachine:
         self.RemoveState = RemoveState(collector=self.StatesCollector),
 
         self.MBC = MBC(value=[1, 0, 0, 0], watch=self.StatesCollector)
-        self.command = self.Com.get_command(char='0', mbc=self.MBC.value.index(1))
+        self.command = self.initial_state()
 
-    def __initial_state__(self):
+    def initial_state(self):
         return self.Com.get_command(char='0', mbc='0')
 
     def run(self, **kwargs):
@@ -38,9 +36,9 @@ class GeojsonFiniteStateMachine:
         @kwargs['data'] features array
         @self.MBC[0] is set to 1 to run Interpret state as initial one
         """
-        data = kwargs['data']  # TODO move to DataPort var
+        self.DataPort.data = kwargs['data']
 
-        for i, k in enumerate(data):
+        for i, k in enumerate(self.DataPort.data):
 
             self.DataAnatomy.update_structure(char=k)
 
@@ -63,7 +61,3 @@ class GeojsonFiniteStateMachine:
 
                 self.RemoveState = RemoveState()
                 self.RemoveState.run(FSM=self, char=k)
-
-            if i == 330:
-                # TODO DEBUGGING
-                pass

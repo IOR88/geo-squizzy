@@ -14,7 +14,7 @@ class StatesCollector:
         old = old_value.index(1)
         new = new_value.index(1)
         if old != new:
-            self.states[old].deallocate()
+            self.states[str(old)].deallocate()
 
 
 class StateMeta(type):
@@ -32,7 +32,7 @@ class StateMeta(type):
                 cls.collector = kwargs['collector']
 
             cls.instance = super(StateMeta, cls).__call__(cls, *args)
-            cls.collector.add(state=cls.instance, key=cls.instance.__str__())
+            cls.collector.add(state=cls.instance, key=cls.instance.__name__())
 
             return cls.instance
         else:
@@ -83,30 +83,35 @@ class InterpretState(State):
         return '0'
 
     def run(self, FSM=None, char=None):
+
         if not (FSM.command[0] is None):
+
             if FSM.command[0] == 'VAL':
-                # TODO TEMP DIGIT INTERPRET
+
                 if char == '-' or char.isdigit():
-                    FSM.command = FSM.Com.get_command(
-                        char=FSM.command[0] + 'DIG', mbc=FSM.MBC.value.index(1))
-                    FSM.MBC.value = FSM.command[2]
+                    FSM.command = FSM.Com.get_command(command=FSM.command, char=FSM.command[0] + 'DIG',
+                                                      mbc=FSM.MBC.value.index(1))
+                    FSM.MBC['value'] = FSM.command[2]
                 else:
-                    FSM.command = FSM.Com.get_command(
-                        char=FSM.command[0] + char, mbc=FSM.MBC.value.index(1))
-                    FSM.MBC.value = FSM.command[2]
+                    FSM.command = FSM.Com.get_command(command=FSM.command, char=FSM.command[0] + char,
+                                                      mbc=FSM.MBC.value.index(1))
+                    FSM.MBC['value'] = FSM.command[2]
+
             elif FSM.command[0] == 'ARR':
-                # TODO TEMP DIGIT INTERPRET
+
                 if char == '-' or char.isdigit():
-                    FSM.command = FSM.Com.get_command(
-                        char=FSM.command[0] + 'DIG', mbc=FSM.MBC.value.index(1))
-                    FSM.MBC.value = FSM.command[2]
+                    FSM.command = FSM.Com.get_command(command=FSM.command, char=FSM.command[0] + 'DIG',
+                                                      mbc=FSM.MBC.value.index(1))
+                    FSM.MBC['value'] = FSM.command[2]
                 else:
-                    FSM.command = FSM.Com.get_command(
-                        char=FSM.command[0] + char, mbc=FSM.MBC.value.index(1))
-                    FSM.MBC.value = FSM.command[2]
+                    FSM.command = FSM.Com.get_command(command=FSM.command, char=FSM.command[0] + char,
+                                                      mbc=FSM.MBC.value.index(1))
+                    FSM.MBC['value'] = FSM.command[2]
+
         else:
-            FSM.command = FSM.Com.get_command(char=char, mbc=FSM.MBC.value.index(1))
-            FSM.MBC.value = FSM.command[2]
+            FSM.command = FSM.Com.get_command(command=FSM.command, char=char,
+                                              mbc=FSM.MBC.value.index(1))
+            FSM.MBC['value'] = FSM.command[2]
 
 
 class WriteState(State):
@@ -119,41 +124,48 @@ class WriteState(State):
         return '1'
 
     def run(self,  FSM=None, char=None):
-        # TODO FSM.__extend_key__(**kwargs)
 
         if FSM.command[0] == 'EXP':
+
             if char == '"':
-                # open expression
                 self.exp_quot_mar += 1
+
             if self.exp_quot_mar > 0:
-                # saving expression
-                # self.key += kwargs['char']
-                FSM.__extend_key__(**kwargs)
+                FSM.DataPort.extend_key(char=char)
+
             if self.exp_quot_mar == 2:
-                # stop saving expression
-                FSM.MBC.value = [0, 0, 1, 0]
+                FSM.MBC['value'] = [0, 0, 1, 0]
+
         elif FSM.command[0] == 'DIG':
+
             if FSM.command[1] == '11':
+
                 if char == ',':
-                    FSM.__add_value__()
-                    FSM.key = ''
+                    FSM.DataPort.add_value()
+                    FSM.DataPort.key = ''
+
                 elif char == ']':
-                    FSM.__add_value__()
-                    FSM.key = ''
-                    FSM.MBC.value = [0, 0, 1, 0]
+                    FSM.DataPort.add_value()
+                    FSM.DataPort.key = ''
+                    FSM.MBC['value'] = [0, 0, 1, 0]
+
                 else:
-                    FSM.__extend_key__(**kwargs)
+                    FSM.DataPort.extend_key(char=char)
+
             elif FSM.command[1] == '01':
+
                 if char == ',':
-                    FSM.__add_value__()
+                    FSM.DataPort.add_value()
                     FSM.key = ''
-                    FSM.MBC.value = [0, 0, 1, 0]
+                    FSM.MBC['value'] = [0, 0, 1, 0]
+
                 elif char == '}':
-                    FSM.__add_value__()
+                    FSM.DataPort.add_value()
                     FSM.key = ''
-                    FSM.MBC.value = [0, 0, 1, 0]
+                    FSM.MBC['value'] = [0, 0, 1, 0]
+
                 else:
-                    FSM.__extend_key__(**kwargs)
+                    FSM.DataPort.extend_key(char=char)
 
 
 class SaveState(State):
@@ -167,39 +179,34 @@ class SaveState(State):
     def run(self,  FSM=None, char=None):
 
         if FSM.command[0] == 'EXP':
-                # save values " some expression "
+
             if FSM.command[1] == '01':
-                # add key
-                FSM.__add__word__()
-                # save key
-                FSM.__save__word__()
-                FSM.command = FSM.__bring_fsm_initial_state()
-                FSM.MBC.value = FSM.command[2]
+                FSM.DataPort.add_word()
+                FSM.DataPort.save_word()
+                FSM.command = FSM.initial_state()
+                FSM.MBC['value'] = FSM.command[2]
+
             elif FSM.command[1] == '10':
-                FSM.__add_value__()
-                FSM.__save_value__()
-                FSM.command = FSM.__bring_fsm_initial_state()
-                FSM.MBC.value = FSM.command[2]
+                FSM.DataPort.add_value()
+                FSM.DataPort.save_value()
+                FSM.command = FSM.initial_state()
+                FSM.MBC['value'] = FSM.command[2]
 
         elif FSM.command[0] == 'DIG':
-            # save digits
+
             if FSM.command[1] == '11':
-                FSM.__save_value__()
-                # self.command[0], self.command[2], self.MBC = None, [1, 0, 0, 0], [1, 0, 0, 0]
-                FSM.command = FSM.__bring_fsm_initial_state()
-                FSM.MBC.value = FSM.command[2]
+                FSM.DataPort.save_value()
+                FSM.command = FSM.initial_state()
+                FSM.MBC['value'] = FSM.command[2]
+
             elif FSM.command[1] == '01':
-                FSM.__save_value__()
+                FSM.DataPort.save_value()
+
                 if char == ',':
-                    FSM.command, FSM.MBC = [
-                        'DEL', '01', [
-                            0, 0, 0, 1], 0], [
-                        0, 0, 0, 1]
+                    FSM.command, FSM.MBC['value'] = ('DEL', '01', [0, 0, 0, 1]), [0, 0, 0, 1]
+
                 elif char == '}':
-                    FSM.command, FSM.MBC = [
-                        'DEL', '11', [
-                            0, 0, 0, 1], 0], [
-                        0, 0, 0, 1]
+                    FSM.command, FSM.MBC['value'] = ('DEL', '11', [0, 0, 0, 1]), [0, 0, 0, 1]
 
 
 class RemoveState(State):
@@ -215,19 +222,18 @@ class RemoveState(State):
         if FSM.command[0] == 'DEL':
 
             if FSM.command[1] == '01':
-                FSM.__remove__word__()
-                FSM.__clean__values__()
-                # switch to write mode
-                FSM.command = ['EXP', '01', [0, 1, 0, 0], 0]
-                FSM.MBC.value = [0, 1, 0, 0]
+                FSM.DataPort.remove_word()
+                FSM.DataPort.clean_values()
+                FSM.command = ('EXP', '01', [0, 1, 0, 0])
+                FSM.MBC['value'] = [0, 1, 0, 0]
+
             elif FSM.command[1] == '11':
-                # will remove two words, because we are closing object
                 try:
-                    if FSM.DataAnatomy.peek() != '1':
-                        FSM.__remove__word__()
-                        FSM.__clean__values__()
+                    if FSM.DataAnatomy.peek() != 1:
+                        FSM.DataPort.remove_word()
+                        FSM.DataPort.clean_values()
                 except IndexError:
-                    FSM.__remove__word__()
-                    FSM.__clean__values__()
-                FSM.command = FSM.__bring_fsm_initial_state()
-                FSM.MBC.value = FSM.command[2]
+                    FSM.DataPort.remove_word()
+                    FSM.DataPort.clean_values()
+                FSM.command = FSM.initial_state()
+                FSM.MBC['value'] = FSM.command[2]

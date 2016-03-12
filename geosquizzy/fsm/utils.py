@@ -28,6 +28,7 @@ class WatchClass:
         self.old_value = None
 
     def __setitem__(self, key, value):
+        # print('SETTING ITEM')
         self.old_value = self.value
         self.value = value
         self.watch.check(old_value=self.old_value, new_value=self.value)
