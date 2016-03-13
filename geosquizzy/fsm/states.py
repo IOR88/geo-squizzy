@@ -6,6 +6,7 @@ class StatesCollector:
     def add(self, state=None, key=None):
         self.states[key] = state
 
+    # TODO PROFILING StatesCollector check
     def check(self, old_value=None, new_value=None):
         """
         check previous and actual state, if these are not equal in value comparison
@@ -25,6 +26,7 @@ class StateMeta(type):
     instance = None
     collector = None
 
+    # TODO PROFILING StateMeta __call__
     def __call__(cls, *args, **kwargs):
         if not cls.instance:
             collector = kwargs.get('collector', None)

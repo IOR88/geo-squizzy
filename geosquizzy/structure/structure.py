@@ -51,13 +51,13 @@ class GeoJSON:
 
     def __start__(self, **kwargs):
         self.geojson = kwargs.get('geojson', None)
-        self.__read_geojson__()
+        self.__read_geojson__(**kwargs)
 
     def __get_results__(self):
         return self.FeTree.get_all_leafs_paths()
 
-    def __read_geojson__(self):
+    def __read_geojson__(self, **kwargs):
         if self.options['mode'] == 'static':
-            self.Fsm.run(data=self.geojson)
+            self.Fsm.run(data=self.geojson, **kwargs)
         elif self.options['mode'] == 'dynamic':
             pass

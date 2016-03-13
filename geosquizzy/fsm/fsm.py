@@ -2,6 +2,7 @@ from geosquizzy.fsm.utils import (create_unique_id, WatchClass)
 from geosquizzy.fsm.data import (DataPortFiniteStateMachine, DataAnatomyFiniteStateMachine)
 from geosquizzy.fsm.commands import CommandsFiniteStateMachine
 from geosquizzy.fsm.states import (StatesCollector, InterpretState, WriteState, SaveState, RemoveState)
+from geosquizzy.fsm.selection import SelectionFiniteStateMachine
 
 
 class MBC(WatchClass):
@@ -34,30 +35,53 @@ class GeojsonFiniteStateMachine:
     def run(self, **kwargs):
         """
         @kwargs['data'] features array
-        @self.MBC[0] is set to 1 to run Interpret state as initial one
+        @kwargs['percentage'] is an int
         """
         self.DataPort.data = kwargs['data']
 
+        DataSelection = None
+        if kwargs.get('percentage', None):
+            DataSelection = SelectionFiniteStateMachine(percentage=kwargs.get('percentage'),
+                                                        len=self.DataPort.data.__len__())
+
+        blocked = False
+
+        # TODO PROFILING check enumerate and other for loop when going into prod
         for i, k in enumerate(self.DataPort.data):
 
             self.DataAnatomy.update_structure(char=k)
 
-            if self.MBC.value[0] == 1:
+            # TODO percentage traversing will extremely speed up whole process
+            if DataSelection:
+                blocked = DataSelection.run(anatomy=self.DataAnatomy.stack)
 
-                self.InterpretState = InterpretState()
-                self.InterpretState.run(FSM=self, char=k)
+                if DataSelection.done():
+                    break
 
-            if self.MBC.value[1] == 1:
+            if not blocked:
 
-                self.WriteState = WriteState()
-                self.WriteState.run(FSM=self, char=k)
+                if self.MBC.value[0] == 1:
 
-            if self.MBC.value[2] == 1:
+                    self.InterpretState = InterpretState()
+                    self.InterpretState.run(FSM=self, char=k)
 
-                self.SaveState = SaveState()
-                self.SaveState.run(FSM=self, char=k)
+                if self.MBC.value[1] == 1:
 
-            if self.MBC.value[3] == 1:
+                    self.WriteState = WriteState()
+                    self.WriteState.run(FSM=self, char=k)
 
-                self.RemoveState = RemoveState()
-                self.RemoveState.run(FSM=self, char=k)
+                if self.MBC.value[2] == 1:
+
+                    self.SaveState = SaveState()
+                    self.SaveState.run(FSM=self, char=k)
+
+                if self.MBC.value[3] == 1:
+
+                    self.RemoveState = RemoveState()
+                    self.RemoveState.run(FSM=self, char=k)
+
+        # print(DataSelection.visited)
+        print(DataSelection.to_visit)
+        print(DataSelection.items)
+        print(DataSelection.space)
+        print(DataSelection.obj_size)
