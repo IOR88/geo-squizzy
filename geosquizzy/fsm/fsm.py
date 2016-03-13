@@ -39,6 +39,9 @@ class GeojsonFiniteStateMachine:
         """
         self.DataPort.data = kwargs['data']
 
+        count = 0
+        s_b = False
+
         DataSelection = None
         if kwargs.get('percentage', None):
             DataSelection = SelectionFiniteStateMachine(percentage=kwargs.get('percentage'),
@@ -46,14 +49,25 @@ class GeojsonFiniteStateMachine:
 
         blocked = False
 
+
+
         # TODO PROFILING check enumerate and other for loop when going into prod
         for i, k in enumerate(self.DataPort.data):
 
             self.DataAnatomy.update_structure(char=k)
+            # print(self.DataAnatomy.stack, i, k, '\n')
+
+            if self.DataAnatomy.stack == [0, 1, 0]:
+                if s_b is False:
+                    count += 1
+                    s_b = True
+            elif self.DataAnatomy.stack == [0, 1]:
+                s_b = False
 
             # TODO percentage traversing will extremely speed up whole process
             if DataSelection:
-                blocked = DataSelection.run(anatomy=self.DataAnatomy.stack)
+                blocked = DataSelection.run(anatomy=self.DataAnatomy.stack,
+                                            blocked=blocked)
 
                 if DataSelection.done():
                     break
@@ -80,8 +94,17 @@ class GeojsonFiniteStateMachine:
                     self.RemoveState = RemoveState()
                     self.RemoveState.run(FSM=self, char=k)
 
+        #     if i == 400:
+        #         # TODO values for percentage 10
+        #         print(DataSelection.visited_total)
+        #         print(DataSelection.visited)
+        #         print(DataSelection.to_visit)
+        #         print(DataSelection.items)
+        #         print(DataSelection.space)
+        #         assert False
+        # print(DataSelection.visited_total)
         # print(DataSelection.visited)
-        print(DataSelection.to_visit)
-        print(DataSelection.items)
-        print(DataSelection.space)
-        print(DataSelection.obj_size)
+        # print(DataSelection.to_visit)
+        # print(DataSelection.items)
+        # print(DataSelection.space)
+        # print(count)
