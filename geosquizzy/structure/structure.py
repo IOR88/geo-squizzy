@@ -1,5 +1,6 @@
 from geosquizzy.fsm.fsm import GeojsonFiniteStateMachine
 from geosquizzy.structure.outcome import GeoSquizzyResults
+from geosquizzy.structure.bark import TreeBark
 
 
 class Tree:
@@ -13,6 +14,7 @@ class FeaturesTree:
     def __init__(self, *args, **kwargs):
         self.Tree = Tree(*args, **kwargs)
         self.Res = GeoSquizzyResults(*args, **kwargs)
+        self.TreeBark = TreeBark(*args, **kwargs)
 
     @staticmethod
     def __new__leaf__():
@@ -24,7 +26,16 @@ class FeaturesTree:
         new_leaf = self.__new__leaf__()
         return {x: kwargs[x] if y is None else y for x, y in new_leaf.items()}
 
+    def new_obj(self):
+        self.TreeBark.new_object()
+
     def add_leaf(self, leaf=None):
+        """
+        :param leaf new node/leaf dict():
+        :return:boolean(which mean if node already exist)
+        """
+        self.TreeBark.add(leaf=leaf)
+
         if leaf['parent'] is None:
             self.Tree.nodes[leaf['id']] = leaf
 
@@ -33,6 +44,10 @@ class FeaturesTree:
 
             if leaf['id'] not in self.Tree.nodes[leaf['parent']]['children']:
                 self.Tree.nodes[leaf['parent']]['children'].append(leaf['id'])
+
+        if self.TreeBark.active:
+            self.TreeBark.active = False
+            return self.TreeBark.repeated
 
     def add_leaf_values(self, leaf_id=None, leaf_values=None):
         self.Tree.nodes[leaf_id]['values'] = leaf_values

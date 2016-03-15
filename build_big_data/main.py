@@ -52,9 +52,9 @@ if __name__ == "__main__":
     geo = DataStructure(type="FeatureCollection",
                         feature_type="Point",
                         coordinates_range=[float(-200), float(200)],
-                        features_number=500000,
+                        features_number=100000,
                         feature_model=CITY)
     geo_json = json.dumps(geo.data)
-    f = open("data/dump500000.json", "w")
+    f = open("/home/ing/PycharmProjects/geo-squizzy/geosquizzy/build_big_data/data/dump100000.json", "w")
     f.write(geo_json)
     f.close()

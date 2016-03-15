@@ -56,8 +56,12 @@ class DataPortFiniteStateMachine:
                                                name=self.words[-1],
                                                level=self.words.__len__(),
                                                parent=create_unique_id(self.words, 0))
-        self.structure.add_leaf(leaf=node)
+        exist = self.structure.add_leaf(leaf=node)
         self.key = ''
+        return exist
+
+    def sig_new(self):
+        self.structure.new_obj()
 
 
 class DataAnatomyFiniteStateMachine(Stack):
@@ -72,6 +76,7 @@ class DataAnatomyFiniteStateMachine(Stack):
         """
         self.values = {'}': 0, ']': 1, '{': 0, '[': 1}
         self.result = None
+        self.count = 0
         Stack.__init__(self, *args, **kwargs)
 
     # TODO PROFILING DataAnatomyFiniteStateMachine update_structure
@@ -80,5 +85,15 @@ class DataAnatomyFiniteStateMachine(Stack):
             self.push(self.values[kwargs['char']])
         elif kwargs['char'] in ['}', ']']:
             rem = self.pop()
+
             if rem != self.values[kwargs['char']]:
                 raise AnatomyError('GeoJSON syntax error ("not matching between opening and closing parenthesis")')
+
+            if self.stack == [0, 1]:
+                """
+                This if statement is counting total amount of objects for now we assume that structure is an GeoJSON
+                document, but after we will have to update it so it will be possible to handle any JSON structure
+                """
+                self.count += 1
+                return True
+        return False

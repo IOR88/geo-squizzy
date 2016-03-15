@@ -184,9 +184,10 @@ class SaveState(State):
 
             if FSM.command[1] == '01':
                 FSM.DataPort.add_word()
-                FSM.DataPort.save_word()
+                exist = FSM.DataPort.save_word()
                 FSM.command = FSM.initial_state()
                 FSM.MBC['value'] = FSM.command[2]
+                return exist
 
             elif FSM.command[1] == '10':
                 FSM.DataPort.add_value()

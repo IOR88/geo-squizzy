@@ -1,17 +1,21 @@
+# TODO selection percentage pattern works, but run and done methods really slow down
+# TODO whole computation when we traverse really big data
+
+# TODO in order to achieve better performance EconomizeFiniteStateMachine class was provided
+
 import math
-# TODO should be configure to save doc structure in fly and depending on that counting percentage
-# TODO right know is only adjusted for GeoJSON FeatureCollection
 
 
 class SelectionFiniteStateMachine:
     def __init__(self, *args, **kwargs):
+        self.empty_passage = False
         self.obj_temp_size = 0
         self.obj_size = 0
         self.visited = -1
         self.visited_total = -1
         self.to_visit = 0
         self.space = 0
-        self.intersection = -1
+        self.intersections = -1
         self.items = 0
         self.doc_len = kwargs.get('len', 0)
         self.percentage = kwargs.get('percentage', 0)
@@ -26,23 +30,23 @@ class SelectionFiniteStateMachine:
         :param anatomy: DataAnatomyFiniteStateMachine.stack [int,...]
         :return: bool()
         """
-        condition = self.immersion['features'] == anatomy
-        if condition:
-            self.visited_total += 1  # TODO we starting from -1 so values is reliable
-            self.intersection += 1
+        if self.immersion['features'] == anatomy and not self.empty_passage:
+            self.visited_total += 1
+            self.intersections += 1
+            self.empty_passage = True
 
             if blocked:
-                pass
+                self.obj_temp_size = 0
             else:
                 self.visited += 1
                 self.__adjust_information__()
 
-            if self.intersection >= self.space:
-                self.intersection = 0
-        elif self.immersion['features_obj'] == anatomy:
+            if self.intersections >= self.space:
+                self.intersections = 0
+        elif self.immersion['features_obj'] == anatomy[:3]:
+            self.empty_passage = False
             self.obj_temp_size += 1
-
-        return self.intersection >= 1  # TODO changing blocked flag
+        return self.intersections >= 1
 
     def done(self):
         return self.visited >= self.to_visit and self.to_visit != 0
@@ -55,15 +59,9 @@ class SelectionFiniteStateMachine:
         self.obj_temp_size = 0
 
     def __calculate_percentage__(self):
-        # TODO not a best idea to adjust it all the time should be compare with all previous differences
         self.items = math.floor(self.doc_len / self.obj_size)
-        self.to_visit = math.floor(((self.items * self.percentage) / 100) - self.visited)
-        # print('calculating')
-        # print(self.items)
-        # print('obj size', self.obj_size)
-        # print(self.to_visit, '\n')
+        to_visit = math.floor(((self.items * self.percentage) / 100) - self.visited)
+        self.to_visit = (1, to_visit)[to_visit >= 0]
 
     def __calculate_space__(self):
-        # print(self.items, self.to_visit)
         self.space = math.floor(self.items / (self.to_visit + self.visited))
-        # print(self.space)

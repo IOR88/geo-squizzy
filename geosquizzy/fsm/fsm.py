@@ -2,7 +2,7 @@ from geosquizzy.fsm.utils import (create_unique_id, WatchClass)
 from geosquizzy.fsm.data import (DataPortFiniteStateMachine, DataAnatomyFiniteStateMachine)
 from geosquizzy.fsm.commands import CommandsFiniteStateMachine
 from geosquizzy.fsm.states import (StatesCollector, InterpretState, WriteState, SaveState, RemoveState)
-from geosquizzy.fsm.selection import SelectionFiniteStateMachine
+from geosquizzy.fsm.economize import EconomizeFiniteStateMachine
 
 
 class MBC(WatchClass):
@@ -18,6 +18,7 @@ class GeojsonFiniteStateMachine:
         """
         self.DataPort = DataPortFiniteStateMachine(structure=kwargs['structure'])
         self.DataAnatomy = DataAnatomyFiniteStateMachine()
+        self.Economization = EconomizeFiniteStateMachine()
         self.Com = CommandsFiniteStateMachine()
 
         self.StatesCollector = StatesCollector()
@@ -39,40 +40,22 @@ class GeojsonFiniteStateMachine:
         """
         self.DataPort.data = kwargs['data']
 
-        count = 0
-        s_b = False
+        exist = None
 
-        DataSelection = None
-        if kwargs.get('percentage', None):
-            DataSelection = SelectionFiniteStateMachine(percentage=kwargs.get('percentage'),
-                                                        len=self.DataPort.data.__len__())
+        for k in self.DataPort.data:
+            increased = self.DataAnatomy.update_structure(char=k)
 
-        blocked = False
+            if increased:
+                self.DataPort.sig_new()
+                self.Economization.increase_progress()
 
+            if not (exist is None):
+                self.Economization.adjust_space(exist=exist)
+                exist = None
 
-
-        # TODO PROFILING check enumerate and other for loop when going into prod
-        for i, k in enumerate(self.DataPort.data):
-
-            self.DataAnatomy.update_structure(char=k)
-            # print(self.DataAnatomy.stack, i, k, '\n')
-
-            if self.DataAnatomy.stack == [0, 1, 0]:
-                if s_b is False:
-                    count += 1
-                    s_b = True
-            elif self.DataAnatomy.stack == [0, 1]:
-                s_b = False
-
-            # TODO percentage traversing will extremely speed up whole process
-            if DataSelection:
-                blocked = DataSelection.run(anatomy=self.DataAnatomy.stack,
-                                            blocked=blocked)
-
-                if DataSelection.done():
-                    break
-
-            if not blocked:
+            if self.Economization.economize():
+                pass
+            else:
 
                 if self.MBC.value[0] == 1:
 
@@ -87,24 +70,9 @@ class GeojsonFiniteStateMachine:
                 if self.MBC.value[2] == 1:
 
                     self.SaveState = SaveState()
-                    self.SaveState.run(FSM=self, char=k)
+                    exist = self.SaveState.run(FSM=self, char=k)
 
                 if self.MBC.value[3] == 1:
 
                     self.RemoveState = RemoveState()
                     self.RemoveState.run(FSM=self, char=k)
-
-        #     if i == 400:
-        #         # TODO values for percentage 10
-        #         print(DataSelection.visited_total)
-        #         print(DataSelection.visited)
-        #         print(DataSelection.to_visit)
-        #         print(DataSelection.items)
-        #         print(DataSelection.space)
-        #         assert False
-        # print(DataSelection.visited_total)
-        # print(DataSelection.visited)
-        # print(DataSelection.to_visit)
-        # print(DataSelection.items)
-        # print(DataSelection.space)
-        # print(count)
