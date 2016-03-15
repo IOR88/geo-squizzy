@@ -7,12 +7,12 @@ if os.path.exists('README.txt'):
     long_description = open('README.txt').read()
 
 # dev version syntax 0.1.dev4
-# last stable 0.1.2
-# last 0.2.0.dev0
-# next 0.2.0.dev1 || 0.2.0 ?
+# last stable 0.2.0
+# last 0.2.0
+# next 0.2.1.dev0 || 0.2.0 ?
 setup(
     name='geo-squizzy',
-    version='0.2.0.dev0',
+    version='0.2.0',
     packages=find_packages(exclude=['research*', 'tests*', 'testing.py',
                                     'todo.txt', 'pycallgraph.png', 'dev_requirements.txt',
                                     '**/*TEMP.py']),

@@ -45,10 +45,11 @@ class TreeBark:
         """
         if len(self.active_set) > 0:
             for key, value in self.keys.items():
-                if value.difference(self.active_set):
+                if value.symmetric_difference(self.active_set):
                     self.repeated = False
                 else:
                     self.repeated = True
+                    break
 
         if not self.repeated:
             self.__add_set__()

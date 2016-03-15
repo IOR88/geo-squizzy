@@ -28,4 +28,4 @@ class EconomizeFiniteStateMachine:
         pass
 
     def economize(self):
-        return self.traversed > 1
+        return self.traversed is not 0

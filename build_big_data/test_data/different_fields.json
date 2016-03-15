@@ -1,0 +1,63 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.65335738658904,
+          45.512083676585156
+        ]
+      },
+      "properties": {
+        "name": "Hungry Heart Cupcakes",
+        "address": "1212 SE Hawthorne Boulevard"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.65335738658904,
+          45.512083676585156
+        ]
+      },
+      "properties": {
+        "name": "Hungry Heart Cupcakes",
+        "address": "1212 SE Hawthorne Boulevard",
+        "website": "http://www.hungryheartcupcakes.com"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.65335738658904,
+          45.512083676585156
+        ]
+      },
+      "properties": {
+        "name": "Hungry Heart Cupcakes",
+        "address": "1212 SE Hawthorne Boulevard",
+        "website": "http://www.hungryheartcupcakes.com",
+        "gluten free": "no"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.65335738658904,
+          45.512083676585156
+        ]
+      },
+      "properties": {
+
+      }
+    }
+  ]
+}
