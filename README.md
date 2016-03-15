@@ -1,8 +1,8 @@
 # geo-squizzy
 
 
-#### General  
-0. last version geo-squizzy-0.1.2(stable)
+#### General
+0. last version geo-squizzy-0.2.0.dev0(stable)
 1. no external dependencies
 
 ### Installation  
