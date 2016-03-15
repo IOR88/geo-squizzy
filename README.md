@@ -21,7 +21,11 @@ from geosquizzy.geosquizzy import GeoSquizzy
 
 Initialization(Currently support only for GeoJSON docs type FeatureCollection)
 ```python
-geo_squizzy = GeoSquizzy()
+
+geojson_options = {'mode': 'static', 'geojson_type': 'FeatureCollection'}
+outcome_options = {}
+
+geo_squizzy = GeoSquizzy(geojson_options=geojson_options, outcome_options=outcome_options)
 ```
 
 Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
