@@ -27,5 +27,18 @@ def get_string_slice(patterns, arg):
     return arg
 
 
-# TODO some util to remove white spaces around value
-# TODO could be use after traversing doc as cleaning function or sth
+def protector(key, error):
+    """
+    @decorator function
+    :param key: should be an instance boolean variable on which check is done
+                if fn() can be executed
+    """
+    def wrap(f):
+        def wrapped_f(*args):
+            if getattr(args[0], key) is False:
+                f(*args)
+            else:
+                raise error('This key and value are protected')
+            f(*args)
+        return wrapped_f
+    return wrap

@@ -1,4 +1,4 @@
-from exceptions.messages import MESSAGES
+from geosquizzy.validation.messages import MESSAGES
 
 
 class FeatureSyntaxError(SyntaxError):
