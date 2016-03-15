@@ -40,16 +40,12 @@ geo_squizzy.get_results()
 ===================
 #### GeoSquizzy Methods
 
-**GeoSquizzy.start(geojson=str(), is_doc=bool())**  
+**GeoSquizzy.start(geojson=str())**
 @geojson which has to be python str object which in it's structure
 will reflect the GeoJSON structure.  
-
-@is_doc python bool, default is None, setting this flag to True will prevent geo-squizzy from checking
-if provided doc is a valid doc (validity here is very poor, checking only base structure of doc) and speed up
-whole squizzy process  
 
 **GeoSquizzy.get_results()**  
 @return python list() object which consist of dict() elements where each has this structure  
 {'values': ['-168.8205037850924', ' 131.69420530060995'], 'keys': ['coordinates', 'geometry', 'features']}  
 @values example values of @keys[0]  
-@keys a list of founded keys, presented in descending order(leaf -> root)  
+@keys a list of founded keys, presented in descending order(leaf -> root)
