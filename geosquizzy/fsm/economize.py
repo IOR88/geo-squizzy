@@ -10,22 +10,29 @@ so(OBJECT_TRAVERSING...WAITING_TIME(INTERSECTIONS INTERVAL)...OBJECT_TRAVERSING 
 
 class EconomizeFiniteStateMachine:
     def __init__(self, *args, **kwargs):
+        """
+        self.omitted_obj keep information about all omitted_obj for active batch
+        """
         self.space = 0
         self.traversed = 0
+        self.omitted_obj = 0
 
     def adjust_space(self, exist):
         if exist:
             self.space += 1
         else:
             self.space = 0
+        # print(self.space)
+        self.omitted_obj = 0
 
     def increase_progress(self):
         self.traversed += 1
         if self.traversed >= self.space:
             self.traversed = 0
 
-    def __clean__(self):
-        pass
+    def omit(self):
+        self.omitted_obj += 1
+        # print(self.omitted_obj)
 
     def economize(self):
         return self.traversed is not 0

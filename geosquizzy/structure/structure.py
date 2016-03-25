@@ -1,6 +1,7 @@
 from geosquizzy.fsm.fsm import GeojsonFiniteStateMachine
 from geosquizzy.structure.outcome import GeoSquizzyResults
 from geosquizzy.structure.bark import TreeBark
+from geosquizzy.optimum.network import Optimum
 
 
 class Tree:
@@ -14,7 +15,8 @@ class FeaturesTree:
     def __init__(self, *args, **kwargs):
         self.Tree = Tree(*args, **kwargs)
         self.Res = GeoSquizzyResults(*args, **kwargs)
-        self.TreeBark = TreeBark(*args, **kwargs)
+        # self.TreeBark = TreeBark(*args, **kwargs)
+        self.Optimum = Optimum(*args, **kwargs)
 
     @staticmethod
     def __new__leaf__():
@@ -26,15 +28,17 @@ class FeaturesTree:
         new_leaf = self.__new__leaf__()
         return {x: kwargs[x] if y is None else y for x, y in new_leaf.items()}
 
-    def new_obj(self):
-        self.TreeBark.new_object()
+    def new_obj(self, omitted):
+        # self.TreeBark.new_object()
+        self.Optimum.update_data(omitted)
 
     def add_leaf(self, leaf=None):
         """
         :param leaf new node/leaf dict():
         :return:boolean(which mean if node already exist)
         """
-        self.TreeBark.add(leaf=leaf)
+        # self.TreeBark.add(leaf=leaf)
+        self.Optimum.update_seq(leaf=leaf)
 
         if leaf['parent'] is None:
             self.Tree.nodes[leaf['id']] = leaf
@@ -45,9 +49,13 @@ class FeaturesTree:
             if leaf['id'] not in self.Tree.nodes[leaf['parent']]['children']:
                 self.Tree.nodes[leaf['parent']]['children'].append(leaf['id'])
 
-        if self.TreeBark.active:
-            self.TreeBark.active = False
-            return self.TreeBark.repeated
+        # if self.TreeBark.active:
+        #     self.TreeBark.active = False
+        #     return self.TreeBark.repeated
+        if self.Optimum.fit_optimum:
+            # print('MIAU!')
+            self.Optimum.fit_optimum = False
+            return True
 
     def add_leaf_values(self, leaf_id=None, leaf_values=None):
         self.Tree.nodes[leaf_id]['values'] = leaf_values
@@ -69,6 +77,8 @@ class GeoJSON:
         self.__read_geojson__(**kwargs)
 
     def __get_results__(self):
+        [print(x.keys, x.count) for x in self.FeTree.Optimum.RawData.models]
+        [print(x) for x in self.FeTree.Optimum.history]
         return self.FeTree.get_all_leafs_paths()
 
     def __read_geojson__(self, **kwargs):

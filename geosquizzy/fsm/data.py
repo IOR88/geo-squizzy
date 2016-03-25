@@ -60,8 +60,8 @@ class DataPortFiniteStateMachine:
         self.key = ''
         return exist
 
-    def sig_new(self):
-        self.structure.new_obj()
+    def sig_new(self, omitted=None):
+        self.structure.new_obj(omitted)
 
 
 class DataAnatomyFiniteStateMachine(Stack):

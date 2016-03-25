@@ -46,7 +46,7 @@ class GeojsonFiniteStateMachine:
             increased = self.DataAnatomy.update_structure(char=k)
 
             if increased:
-                self.DataPort.sig_new()
+                self.DataPort.sig_new(omitted=self.Economization.omitted_obj)
                 self.Economization.increase_progress()
 
             if not (exist is None):
@@ -54,6 +54,8 @@ class GeojsonFiniteStateMachine:
                 exist = None
 
             if self.Economization.economize():
+                if increased:
+                    self.Economization.omit()
                 pass
             else:
 

@@ -20,7 +20,7 @@ def growth_of_diversity(new, previous):
     increase if x -> -oo
     decrease if x -> +oo
     """
-    return previous - new
+    return new - previous
 
 
 def strength_of_measurement(current, total):

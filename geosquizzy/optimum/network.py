@@ -51,6 +51,7 @@ Machine learning optimisation
 
 """
 from geosquizzy.optimum.utils import (diversity_factor, growth_of_diversity, strength_of_measurement)
+from geosquizzy.optimum.neurons import (Neuron, strength, worry, rationality)
 
 
 class SeqModel:
@@ -95,6 +96,9 @@ class RawData:
             self.models.append(SeqModel(keys=self.temp))
             self.temp.clear()
 
+    def update_seq(self, leaf):
+        self.temp.add(leaf['id'])
+
     def all_counts(self):
         return sum([x.count for x in self.models])
 
@@ -106,13 +110,28 @@ class Network:
 
     def __init__(self, *args, **kwargs):
         """
-        kwargs['batch'] init() amount of initial batch sample on which first optimization will be done
-        kwargs['loss'] float() possible loss as threshold
+        kwargs['layers'] int() number of neuron layers
+        kwargs['neurons'] int() number of neurons per layer
         """
-        self.neurons = []
+        self.neurons = {}
+        self.i_layers = kwargs['layers']
+        self.i_neurons = kwargs['neurons']
+        self.i_senses = kwargs['senses']
         self.__build_network__()
+        print(self.neurons)
 
     def __build_network__(self):
+        [self.__add_layer__(self.i_neurons, x, self.i_senses[x]) for x in range(0, self.i_layers, 1)]
+
+    def __add_layer__(self, neurons, layer, senses):
+        [self.__add_neuron__((layer, x), senses[x]) for x in range(0, neurons, 1)]
+
+    def __add_neuron__(self, n_id, sense):
+        hash_k = str(n_id[0])+str(n_id[1])
+        self.neurons[hash_k] = Neuron(_id=n_id, sense=sense)
+
+    def __create_synapses__(self):
+        # TODO
         pass
 
 
@@ -120,13 +139,18 @@ class Optimum:
 
     def __init__(self, *args, **kwargs):
         """
+        :param kwargs['optim'] batch and loos params
         self.history is a 3 Dimensional Matrix [[int, int, int]...]
         """
+        self.batch = kwargs.get('optim.batch', 100)
+        self.loss = kwargs.get('optim.loss', 1.0)
+        self.last_batch = 0
+        self.fit_optimum = False
         self.history = []
-        self.Network = Network()
+        self.Network = Network(layers=1, neurons=2, senses=[[strength, worry, rationality]])
         self.RawData = RawData()
 
-    def create_history(self, current, total):
+    def __create_history__(self, current, total, omitted):
         """
         Each invocation of this method will add new record to
         self.history
@@ -134,12 +158,27 @@ class Optimum:
         """
         x = diversity_factor(len(self.RawData.models), self.RawData.all_counts(), self.RawData.largest_seq())
         try:
-            y = growth_of_diversity(self.history[-1], self.history[-2])
+            y = growth_of_diversity(x, self.history[-1][0])
+            g = omitted - self.history[-1][3]
         except IndexError:
-            y = growth_of_diversity(self.history[-1], self.history[-1])
+            # y = growth_of_diversity(self.history[-1], self.history[-1])
+            y = 0
+            g = 0
         z = strength_of_measurement(current, total)
-        self.history.append([x, y, z])
+        k = omitted
+        self.history.append([x, y, z, k, g])
 
+    def update_data(self, omitted):
+        self.RawData.is_unique()
+        self.__fit_needed__(omitted)
 
-if __name__ == "__main__":
-    pass
+    def update_seq(self, leaf):
+        self.RawData.update_seq(leaf)
+
+    def __fit_needed__(self, omitted):
+        t_count = self.RawData.all_counts()
+        # print(t_count)
+        if (t_count - self.last_batch) >= self.batch:
+            self.__create_history__(self.batch, 1000, omitted)
+            self.last_batch = t_count
+            self.fit_optimum = True
