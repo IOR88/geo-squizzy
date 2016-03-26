@@ -18,10 +18,12 @@ class EconomizeFiniteStateMachine:
         self.omitted_obj = 0
 
     def adjust_space(self, exist):
-        if exist:
-            self.space += 1
+        # TODO will have to be adjusted to new ML optimum mechanism
+        if exist[0]:
+            self.space += exist[1]
         else:
-            self.space = 0
+            self.space -= exist[-1]
+            self.space = (self.space, 0)[self.space < 0]
         # print(self.space)
         self.omitted_obj = 0
 

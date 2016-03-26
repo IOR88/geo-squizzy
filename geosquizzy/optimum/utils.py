@@ -33,12 +33,34 @@ def strength_of_measurement(current, total):
     return (current * 100) / total
 
 
-def loss():
-    pass
+def loss(x, y):
+    """
+    :param x: last layer neurons output
+    :param y: last history record
+    :return:
+    """
+    return 0
 
 
-def activation():
-    pass
+def activation(x, max_loss):
+    """
+    :param x: last layer neurons output
+
+    0 -lower bound
+    1 -upper bound
+
+    logistic/sigmoid function
+    :return:
+    """
+    g = [y for y in x if y[1] == 'strength']
+    y = [y for y in x if y[1] == 'worry']
+    z = [y for y in x if y[1] == 'rationality']
+    # print(g,y,z)
+    # print(((g[0][0] + y[0][0]) - z[0][0]), max_loss)
+    if ((g[0][0] + y[0][0]) - z[0][0]) > max_loss:
+        return True, math.floor(g[0][0] + y[0][0]) - z[0][0]
+    else:
+        return False, math.floor(g[0][0] + y[0][0]) - z[0][0]
 
 
 # def sigma(x):

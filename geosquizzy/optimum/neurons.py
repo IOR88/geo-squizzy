@@ -31,7 +31,7 @@ class Neuron:
         self.weight = self.weight + n_weight
 
     def calculate_sig(self, x):
-        return self.sense(x) + self.weight
+        return self.sense(x) + self.weight, self.sense.__name__
 
     def back_propagate(self):
         pass
@@ -39,25 +39,42 @@ class Neuron:
 
 def strength(x):
     """
+    :param x [x, y, z, k, g] history record
+
+    scala 0 - 100
+
     Neuron sense, strength can have positive or negative weight for optimization of whole algorithm
     It will be based on x[0] percentage of the biggest population and on level of x[1](not matter if
     is a -INT or +INT, what's count is the size of number)
     """
-    pass
+    return (((x[0]+abs(x[1]))*100)/100)/10
 
 
 def worry(x):
     """
+    :param x [x, y, z, k, g] history record
+
     Neuron sense, worry will focus on relation between
-    x[2] and x[3] where first is a batch size and second the
-    number of omitted objects
+    x[2] and x[5] where first is a batch size and second the
+    percentage of omitted objects according to total objects
     """
-    pass
+
+    y = (x[2] - x[5])
+    if y == x[2]:
+        return 0
+    else:
+        return y/10
 
 
 def rationality(x):
     """
+    :param x [x, y, z, k, g] history record
+
     Neuron sense, rationality will focus on x[4] which is a
     difference in omitted objects between current and last history record
     """
-    pass
+    # print(x)
+    try:
+        return x[3]/x[4]
+    except ZeroDivisionError:
+        return 0

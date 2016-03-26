@@ -55,7 +55,7 @@ class FeaturesTree:
         if self.Optimum.fit_optimum:
             # print('MIAU!')
             self.Optimum.fit_optimum = False
-            return True
+            return self.Optimum.prediction
 
     def add_leaf_values(self, leaf_id=None, leaf_values=None):
         self.Tree.nodes[leaf_id]['values'] = leaf_values
@@ -77,8 +77,8 @@ class GeoJSON:
         self.__read_geojson__(**kwargs)
 
     def __get_results__(self):
-        [print(x.keys, x.count) for x in self.FeTree.Optimum.RawData.models]
-        [print(x) for x in self.FeTree.Optimum.history]
+        # [print(x.keys, x.count) for x in self.FeTree.Optimum.RawData.models]
+        # [print(x) for x in self.FeTree.Optimum.history]
         return self.FeTree.get_all_leafs_paths()
 
     def __read_geojson__(self, **kwargs):

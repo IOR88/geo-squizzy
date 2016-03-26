@@ -50,7 +50,7 @@ Machine learning optimisation
 #
 
 """
-from geosquizzy.optimum.utils import (diversity_factor, growth_of_diversity, strength_of_measurement)
+from geosquizzy.optimum.utils import (diversity_factor, growth_of_diversity, strength_of_measurement, loss, activation)
 from geosquizzy.optimum.neurons import (Neuron, strength, worry, rationality)
 
 
@@ -117,11 +117,11 @@ class Network:
         self.i_layers = kwargs['layers']
         self.i_neurons = kwargs['neurons']
         self.i_senses = kwargs['senses']
-        self.__build_network__()
-        print(self.neurons)
+        self.build_network()
 
-    def __build_network__(self):
+    def build_network(self):
         [self.__add_layer__(self.i_neurons, x, self.i_senses[x]) for x in range(0, self.i_layers, 1)]
+        self.__create_synapses__()
 
     def __add_layer__(self, neurons, layer, senses):
         [self.__add_neuron__((layer, x), senses[x]) for x in range(0, neurons, 1)]
@@ -131,8 +131,48 @@ class Network:
         self.neurons[hash_k] = Neuron(_id=n_id, sense=sense)
 
     def __create_synapses__(self):
-        # TODO
-        pass
+        [self.__connect_layers__(x) for x in range(0, self.i_layers, 1)]
+
+    def __get_neurons__(self, x_layer):
+        """
+        :param x_layer: neurons layer
+        get all neurons which belong to x_layer
+        """
+        return [x for x in self.neurons.keys() if x[0] == str(x_layer)]
+
+    def __connect_layers__(self, x_layer):
+        """
+        :param x_layer is a layer for which connections will be created
+        get all neurons which are between x_layer -1 and +1, then for
+        each neuron which belong to x_layer we create synapse connection for all
+        neurons from to_connect LIST
+        """
+        to_connect = []
+        if x_layer - 1 >= 0:
+            to_connect = self.__get_neurons__(x_layer-1)
+        if x_layer + 1 < self.i_layers:
+            to_connect += self.__get_neurons__(x_layer+1)
+
+        [self.neurons[x].add_synapse(y) for x in self.__get_neurons__(x_layer) for y in to_connect]
+
+    def interpret_signal(self, data, max_loss):
+        """
+        :param data: [x, y, z, k, g] one last record from history
+        trigger data flow into neurons network
+        """
+        # print(data)
+        information_package = [x[1].calculate_sig(data) for x in self.neurons.items()]
+        # print(information_package)
+        prediction = activation(information_package, max_loss)
+
+        _loss = loss(information_package, data)
+        if _loss > max_loss:
+            """
+            TODO adjust signals
+            """
+            pass
+
+        return prediction
 
 
 class Optimum:
@@ -142,12 +182,13 @@ class Optimum:
         :param kwargs['optim'] batch and loos params
         self.history is a 3 Dimensional Matrix [[int, int, int]...]
         """
-        self.batch = kwargs.get('optim.batch', 100)
-        self.loss = kwargs.get('optim.loss', 1.0)
+        self.batch = kwargs.get('optim', None).get('batch', 100)
+        self.loss = kwargs.get('optim', None).get('loss', 1.0)
         self.last_batch = 0
         self.fit_optimum = False
+        self.prediction = None
         self.history = []
-        self.Network = Network(layers=1, neurons=2, senses=[[strength, worry, rationality]])
+        self.Network = Network(layers=1, neurons=3, senses=[[strength, worry, rationality]])
         self.RawData = RawData()
 
     def __create_history__(self, current, total, omitted):
@@ -166,7 +207,8 @@ class Optimum:
             g = 0
         z = strength_of_measurement(current, total)
         k = omitted
-        self.history.append([x, y, z, k, g])
+        f = (omitted*100)/total
+        self.history.append([x, y, z, k, g, f])
 
     def update_data(self, omitted):
         self.RawData.is_unique()
@@ -179,6 +221,8 @@ class Optimum:
         t_count = self.RawData.all_counts()
         # print(t_count)
         if (t_count - self.last_batch) >= self.batch:
-            self.__create_history__(self.batch, 1000, omitted)
+            self.__create_history__(self.batch, 10000, omitted)
+            self.prediction = self.Network.interpret_signal(self.history[-1], self.loss)
+            # print(self.prediction)
             self.last_batch = t_count
             self.fit_optimum = True
