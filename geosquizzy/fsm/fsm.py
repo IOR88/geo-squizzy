@@ -3,6 +3,7 @@ from geosquizzy.fsm.data import (DataPortFiniteStateMachine, DataAnatomyFiniteSt
 from geosquizzy.fsm.commands import CommandsFiniteStateMachine
 from geosquizzy.fsm.states import (StatesCollector, InterpretState, WriteState, SaveState, RemoveState)
 from geosquizzy.fsm.economize import EconomizeFiniteStateMachine
+from multiprocessing import Process
 
 
 class MBC(WatchClass):
@@ -56,7 +57,6 @@ class GeojsonFiniteStateMachine:
             if self.Economization.economize():
                 if increased:
                     self.Economization.omit()
-                pass
             else:
 
                 if self.MBC.value[0] == 1:

@@ -4,6 +4,7 @@ from geosquizzy.structure.bark import TreeBark
 from geosquizzy.optimum.network import Optimum
 
 
+
 class Tree:
 
     def __init__(self, *args, **kwargs):
@@ -15,7 +16,6 @@ class FeaturesTree:
     def __init__(self, *args, **kwargs):
         self.Tree = Tree(*args, **kwargs)
         self.Res = GeoSquizzyResults(*args, **kwargs)
-        # self.TreeBark = TreeBark(*args, **kwargs)
         self.Optimum = Optimum(*args, **kwargs)
 
     @staticmethod
@@ -29,7 +29,6 @@ class FeaturesTree:
         return {x: kwargs[x] if y is None else y for x, y in new_leaf.items()}
 
     def new_obj(self, omitted):
-        # self.TreeBark.new_object()
         self.Optimum.update_data(omitted)
 
     def add_leaf(self, leaf=None):
@@ -37,7 +36,6 @@ class FeaturesTree:
         :param leaf new node/leaf dict():
         :return:boolean(which mean if node already exist)
         """
-        # self.TreeBark.add(leaf=leaf)
         self.Optimum.update_seq(leaf=leaf)
 
         if leaf['parent'] is None:
@@ -49,11 +47,7 @@ class FeaturesTree:
             if leaf['id'] not in self.Tree.nodes[leaf['parent']]['children']:
                 self.Tree.nodes[leaf['parent']]['children'].append(leaf['id'])
 
-        # if self.TreeBark.active:
-        #     self.TreeBark.active = False
-        #     return self.TreeBark.repeated
         if self.Optimum.fit_optimum:
-            # print('MIAU!')
             self.Optimum.fit_optimum = False
             return self.Optimum.prediction
 
