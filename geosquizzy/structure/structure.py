@@ -1,7 +1,9 @@
 from geosquizzy.fsm.fsm import GeojsonFiniteStateMachine
 from geosquizzy.structure.outcome import GeoSquizzyResults
-from geosquizzy.structure.bark import TreeBark
 from geosquizzy.optimum.network import Optimum
+from geosquizzy.socket.gs_client import GsSocketClient
+
+from socket import AF_INET, SOCK_STREAM
 
 
 class Tree:
@@ -16,6 +18,7 @@ class FeaturesTree:
         self.Tree = Tree(*args, **kwargs)
         self.Res = GeoSquizzyResults(*args, **kwargs)
         self.Optimum = Optimum(*args, **kwargs)
+        self.socket = kwargs.get('socket', None)
 
     @staticmethod
     def __new__leaf__():
@@ -36,6 +39,9 @@ class FeaturesTree:
         :return:boolean(which mean if node already exist)
         """
         self.Optimum.update_seq(leaf=leaf)
+
+        # TODO SOCKET SEND
+        self.socket.write(leaf)
 
         if leaf['parent'] is None:
             self.Tree.nodes[leaf['id']] = leaf
@@ -60,10 +66,21 @@ class FeaturesTree:
 class GeoJSON:
 
     def __init__(self, **kwargs):
-        self.FeTree = FeaturesTree(**kwargs)
+        self.Socket = GsSocketClient(HOST='localhost',
+                                     PORT=6004,
+                                     FAMILY=AF_INET,
+                                     TYPE=SOCK_STREAM)
+
+        self.FeTree = FeaturesTree(socket=self.Socket, **kwargs)
         self.Fsm = GeojsonFiniteStateMachine(structure=self.FeTree)
+
         self.geojson = None
         self.options = kwargs.get('geojson_options', {})
+
+        self.__processes__()
+
+    def __processes__(self):
+        self.Socket.connect()
 
     def __start__(self, **kwargs):
         self.geojson = kwargs.get('geojson', None)
