@@ -4,7 +4,6 @@ from geosquizzy.structure.bark import TreeBark
 from geosquizzy.optimum.network import Optimum
 
 
-
 class Tree:
 
     def __init__(self, *args, **kwargs):

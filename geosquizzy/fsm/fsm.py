@@ -59,6 +59,7 @@ class GeojsonFiniteStateMachine:
                     self.Economization.omit()
             else:
 
+                # TODO one process
                 if self.MBC.value[0] == 1:
 
                     self.InterpretState = InterpretState()
