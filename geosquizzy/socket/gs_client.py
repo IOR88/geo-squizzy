@@ -2,6 +2,7 @@ from geosquizzy.socket.gs_socket import GsSocket
 from geosquizzy.socket.utils import pre_data_bytes_stream
 
 from socket import error
+from socket import AF_INET, SOCK_STREAM
 
 
 class GsSocketClient(GsSocket):
@@ -22,3 +23,12 @@ class GsSocketClient(GsSocket):
     def write(self, data):
         converted = pre_data_bytes_stream(data)
         self.socket.send(converted)
+
+
+if __name__ == "__main__":
+    client = GsSocketClient(HOST='localhost',
+                            PORT=7801,
+                            FAMILY=AF_INET,
+                            TYPE=SOCK_STREAM)
+    client.connect()
+    client.write('miau78')

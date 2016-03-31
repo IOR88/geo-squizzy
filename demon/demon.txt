@@ -1,0 +1,115 @@
+13.3. Coding Rules
+
+Some basic rules to coding a daemon prevent unwante
+d interactions from happening. We state these rules
+ and
+then show a function,
+daemonize
+, that implements them.
+1.
+The first thing to do is call
+umask
+ to set the file mode creation mask to 0. The file
+mode creation mask
+that's inherited could be set to deny certain permi
+ssions. If the daemon process is going to create fi
+les, it
+may want to set specific permissions. For example,
+if it specifically creates files with group-read an
+d
+group-write enabled, a file mode creation mask that
+ turns off either of these permissions would undo i
+ts
+efforts.
+2.
+Call
+fork
+ and have the parent
+exit
+. This does several things. First, if the daemon wa
+s started as a
+simple shell command, having the parent terminate m
+akes the shell think that the command is done.
+Second, the child inherits the process group ID of
+the parent but gets a new process ID, so we're
+guaranteed that the child is not a process group le
+ader. This is a prerequisite for the call to
+setsid
+ that is
+done next.
+3.
+Call
+setsid
+ to create a new session. The three steps listed in
+Section 9.5
+ occur. The process (a) becomes
+a session leader of a new session, (b) becomes the
+process group leader of a new process group, and (c
+)
+has no controlling terminal.
+Under System V–based systems, some people recommend
+ calling
+fork
+ again at this point and having
+the parent terminate. The second child continues as
+ the daemon. This guarantees that the daemon is not
+ a
+session leader, which prevents it from acquiring a
+controlling terminal under the System V rules
+(
+Section 9.6
+). Alternatively, to avoid acquiring a controlling
+terminal, be sure to specify
+O_NOCTTY
+whenever opening a terminal device.
+4.
+Change the current working directory to the root di
+rectory. The current working directory inherited fr
+om
+the parent could be on a mounted file system. Since
+ daemons normally exist until the system is reboote
+d,
+if the daemon stays on a mounted file system, that
+file system cannot be unmounted.
+Alternatively, some daemons might change the curren
+t working directory to some specific location,
+where they will do all their work. For example, lin
+e printer spooling daemons often change to their sp
+ool
+directory.
+5.
+Unneeded file descriptors should be closed. This pr
+events the daemon from holding open any
+descriptors that it may have inherited from its par
+ent (which could be a shell or some other process).
+ We
+can use our
+open_max
+ function (
+Figure 2.16
+) or the
+getrlimit
+ function (
+Section 7.11
+) to determine the
+highest descriptor and close all descriptors up to
+that value.
+6.
+Some daemons open file descriptors 0, 1, and 2 to
+/dev/null
+ so that any library routines that try to read
+from standard input or write to standard output or
+standard error will have no effect. Since the daemo
+n is
+not associated with a terminal device, there is now
+here for output to be displayed; nor is there anywh
+ere
+to receive input from an interactive user. Even if
+the daemon was started from an interactive session,
+ the
+daemon runs in the background, and the login sessio
+n can terminate without affecting the daemon. If
+other users log in on the same terminal device, we
+wouldn't want output from the daemon showing up on
+the terminal, and the users wouldn't expect their i
+nput to be read by the daemon.
