@@ -3,7 +3,8 @@
 
 #### General
 0. last version geo-squizzy-0.2.0(stable)
-1. no external dependencies
+1. last version geo-squizzy-0.2.1.dev0(unstable)
+2. no external dependencies
 
 ### Installation  
 1.pip install geo-squizzy
