@@ -12,7 +12,7 @@ if __name__ == "__main__":
                     PORT=7801,
                     FAMILY=AF_INET,
                     TYPE=SOCK_STREAM,
-                    CONNECTIONS=3)
+                    CONNECTIONS=10)
 
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:

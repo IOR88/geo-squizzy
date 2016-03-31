@@ -22,16 +22,17 @@ class GsSocketServer(GsSocket):
             sys.exit(1)
 
     def listen(self):
-        conn, address = self.socket.accept()
+        self.socket.listen(self.CONNECTIONS)
 
         while True:
+            conn, address = self.socket.accept()
+
             data = conn.recv(1024)
             if data:
                 print('Connected to address ', address, '\n')
                 print(str(data, 'utf-8'), '\n \n')
             else:
-                pass
-                # self.socket.close()
+                self.socket.close()
 
     def kill(self):
         pass

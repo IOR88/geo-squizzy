@@ -3,6 +3,7 @@ from geosquizzy.socket.utils import pre_data_bytes_stream
 
 from socket import error
 from socket import AF_INET, SOCK_STREAM
+import random
 
 
 class GsSocketClient(GsSocket):
@@ -26,9 +27,13 @@ class GsSocketClient(GsSocket):
 
 
 if __name__ == "__main__":
+    import time
     client = GsSocketClient(HOST='localhost',
                             PORT=7801,
                             FAMILY=AF_INET,
                             TYPE=SOCK_STREAM)
     client.connect()
-    client.write('miau78')
+    while True:
+        client.write(random.random())
+        time.sleep(3)
+    client.disconnect()
