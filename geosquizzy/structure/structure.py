@@ -41,7 +41,10 @@ class FeaturesTree:
         self.Optimum.update_seq(leaf=leaf)
 
         # TODO SOCKET SEND
+        # TODO START NEW THREAD HERE ?
+        # TODO and only add items to queue
         self.socket.write(leaf)
+        # self.socket.run(leaf)
 
         if leaf['parent'] is None:
             self.Tree.nodes[leaf['id']] = leaf
@@ -67,7 +70,7 @@ class GeoJSON:
 
     def __init__(self, **kwargs):
         self.Socket = GsSocketClient(HOST='localhost',
-                                     PORT=6004,
+                                     PORT=8030,
                                      FAMILY=AF_INET,
                                      TYPE=SOCK_STREAM)
 
@@ -81,6 +84,7 @@ class GeoJSON:
 
     def __processes__(self):
         self.Socket.connect()
+        pass
 
     def __start__(self, **kwargs):
         self.geojson = kwargs.get('geojson', None)

@@ -9,7 +9,7 @@ if __name__ == "__main__":
                     std_out='/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/logs/out.txt',
                     std_err='/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/logs/err.txt',
                     HOST='localhost',
-                    PORT=7801,
+                    PORT=8030,
                     FAMILY=AF_INET,
                     TYPE=SOCK_STREAM,
                     CONNECTIONS=10)
