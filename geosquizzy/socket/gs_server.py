@@ -14,12 +14,12 @@ class GsSocketServer(GsSocket):
         self.__create_socket__()
 
     def disconnect(self):
-        self.socket.close()
+        self.__close_socket__()
 
     def create_connection(self):
         try:
             self.socket.bind((self.HOST, self.PORT))
-            self.socket.listen(self.CONNECTIONS)
+            # self.socket.listen(self.CONNECTIONS)
         except (error,) as err:
             print(err)
             sys.exit(1)

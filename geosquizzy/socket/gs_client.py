@@ -11,7 +11,7 @@ class GsSocketClient(GsSocket):
     def __init__(self, *args, **kwargs):
         super(GsSocketClient, self).__init__(self, *args, **kwargs)
         self.__create_socket__()
-        self.connect()
+        # self.connect()
 
     def connect(self):
         try:
@@ -20,7 +20,7 @@ class GsSocketClient(GsSocket):
             print(err)
 
     def disconnect(self):
-        self.socket.close()
+        self.__close_socket__()
 
     def write(self, data):
         # TODO do we have to connect each time ?

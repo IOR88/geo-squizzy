@@ -12,3 +12,6 @@ class GsSocket:
 
     def __create_socket__(self):
         self.socket = socket(family=self.FAMILY, type=self.TYPE)
+
+    def __close_socket__(self):
+        self.socket.close()
