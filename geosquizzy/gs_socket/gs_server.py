@@ -1,4 +1,4 @@
-from geosquizzy.socket.gs_socket import GsSocket
+from geosquizzy.gs_socket.gs_socket import GsSocket
 
 from socket import error
 from socket import AF_INET, SOCK_STREAM
@@ -11,7 +11,7 @@ class GsSocketServer(GsSocket):
     def __init__(self, *args, **kwargs):
         GsSocket.__init__(self, *args, **kwargs)
         self.clients = set()
-        self.__create_socket__()
+        self.__create_socket__(server=True)
 
     def disconnect(self):
         self.__close_socket__()
@@ -36,7 +36,7 @@ class GsSocketServer(GsSocket):
                 try:
                     data = conn.recv(1024)
                     if data:
-                        print(str(data, 'utf-8'), '\n \n')
+                        # print(str(data, 'utf-8'), '\n \n')
                         self.__broadcast__(data)
                     else:
                         print('closing connection ?')

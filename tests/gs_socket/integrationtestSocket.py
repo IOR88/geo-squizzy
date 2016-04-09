@@ -5,7 +5,7 @@ import sys
 
 from socket import AF_INET, SOCK_STREAM
 
-from geosquizzy.socket.gs_client import GsSocketClient
+from geosquizzy.gs_socket.gs_client import GsSocketClient
 
 
 class SocketClientServerConnectionTest(unittest.TestCase):

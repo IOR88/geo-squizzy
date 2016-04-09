@@ -1,4 +1,4 @@
-from socket import socket
+from socket import socket, SOL_SOCKET, SO_REUSEADDR
 
 
 class GsSocket:
@@ -10,8 +10,13 @@ class GsSocket:
         self.CONNECTIONS = kwargs.get('CONNECTIONS', None)
         self.socket = None
 
-    def __create_socket__(self):
+    def __create_socket__(self, server=None):
+        """
+        :arg server Bool()
+        """
         self.socket = socket(family=self.FAMILY, type=self.TYPE)
+        if server:
+            self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 
     def __close_socket__(self):
         self.socket.close()

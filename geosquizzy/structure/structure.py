@@ -1,7 +1,7 @@
 from geosquizzy.fsm.fsm import GeojsonFiniteStateMachine
 from geosquizzy.structure.outcome import GeoSquizzyResults
 from geosquizzy.optimum.network import Optimum
-from geosquizzy.socket.gs_client import GsSocketClient
+from geosquizzy.gs_socket.gs_client import GsSocketClient
 
 from socket import AF_INET, SOCK_STREAM
 

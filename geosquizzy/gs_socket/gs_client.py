@@ -1,5 +1,5 @@
-from geosquizzy.socket.gs_socket import GsSocket
-from geosquizzy.socket.utils import pre_data_bytes_stream
+from geosquizzy.gs_socket.gs_socket import GsSocket
+from geosquizzy.gs_socket.utils import pre_data_bytes_stream
 
 from socket import error
 from socket import AF_INET, SOCK_STREAM
@@ -22,6 +22,11 @@ class GsSocketClient(GsSocket):
     def disconnect(self):
         self.__close_socket__()
 
+    def read(self, size):
+        data = self.socket.recv(size)
+        if data:
+            return data
+
     def write(self, data):
         # TODO do we have to connect each time ?
         # self.__create_socket__()
@@ -29,7 +34,6 @@ class GsSocketClient(GsSocket):
         try:
             converted = pre_data_bytes_stream(data)
             self.socket.send(converted)
-            print('SENDED ?')
         except (Exception,) as err:
             print(err)
             assert False

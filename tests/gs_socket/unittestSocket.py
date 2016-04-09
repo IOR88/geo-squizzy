@@ -6,12 +6,15 @@ import threading
 
 from socket import AF_INET, SOCK_STREAM
 
-from geosquizzy.socket.gs_socket import GsSocket
-from geosquizzy.socket.gs_server import GsSocketServer
-from geosquizzy.socket.gs_client import GsSocketClient
+from geosquizzy.gs_socket.gs_socket import GsSocket
+from geosquizzy.gs_socket.gs_server import GsSocketServer
+from geosquizzy.gs_socket.gs_client import GsSocketClient
 
 
 class SocketInitializationTest(unittest.TestCase):
+    """
+    Testing socket initialization process
+    """
     def setUp(self):
         self.options = {'HOST': 'localhost',
                         'PORT': 8030,
@@ -23,11 +26,15 @@ class SocketInitializationTest(unittest.TestCase):
         self.socket.__close_socket__()
 
     def test_init_socket(self):
+
         self.socket = GsSocket(**self.options)
         self.socket.__create_socket__()
 
 
 class SocketServerClientConnectionTest(unittest.TestCase):
+    """
+    Testing server/client write <-> read interactions
+    """
     def setUp(self):
         self.options = {'HOST': 'localhost',
                         'PORT': 8030,
@@ -38,17 +45,30 @@ class SocketServerClientConnectionTest(unittest.TestCase):
         self.socket_client = GsSocketClient(**self.options)
 
     def tearDown(self):
-        self.socket_server.disconnect()
         self.socket_client.disconnect()
+        self.socket_server.disconnect()
+        # kill server_socket
+        # tcpkill read ->
 
     def test_bind_socket(self):
         self.socket_server.create_connection()
-        # threading.Thread(target=self.socket_server.run).start()
-        # with self.socket_server.run() as m:
-        #     self.socket_client.connect()
-        #     pass
-        # # self.socket_client.connect()
-        # pass
+        server_thread = threading.Thread(target=self.socket_server.run)
+        server_thread.daemon = True
+        server_thread.start()
+        self.socket_client.connect()
+
+        def __messaging__(socket, message):
+            """
+            :param socket: socket client
+            :param message: 'TEST'+int()
+            :return: Bool(message==res)
+            """
+            socket.write(message)
+            res = socket.read(1024)
+            if res:
+                return message == str(res, 'utf-8')
+
+        [self.assertTrue(__messaging__(self.socket_client, 'TEST'+str(x))) for x in range(0, 1000, 1)]
 
 
 def test_suite():

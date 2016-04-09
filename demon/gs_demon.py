@@ -5,7 +5,7 @@ import atexit
 from signal import SIGTERM
 from socket import error
 
-from geosquizzy.socket.gs_server import GsSocketServer
+from geosquizzy.gs_socket.gs_server import GsSocketServer
 
 
 # http://www.python.rk.edu.pl/w/p/python-i-programowanie-sieciowe/
