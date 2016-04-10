@@ -1,8 +1,8 @@
 from geosquizzy.gs_socket.gs_socket import GsSocket
 
 from socket import error
-from socket import AF_INET, SOCK_STREAM
-from threading import Thread
+from socket import AF_INET, SOCK_STREAM, SHUT_RDWR
+from threading import Thread, Lock
 import sys
 
 
@@ -31,13 +31,19 @@ class GsSocketServer(GsSocket):
             except (BrokenPipeError, ConnectionResetError) as err:
                 print(err)
 
-    def __handle_client_req__(self, conn):
+    def __handle_client_req__(self, conn, lock):
         while True:
                 try:
                     data = conn.recv(1024)
                     if data:
                         # print(str(data, 'utf-8'), '\n \n')
+                        """
+                        Lock is required to avoid other thread removing some client from
+                        self.clients set
+                        """
+                        lock.acquire()
                         self.__broadcast__(data)
+                        lock.release()
                     else:
                         print('closing connection ?')
                         conn.close()
@@ -50,6 +56,7 @@ class GsSocketServer(GsSocket):
 
     def run(self):
         self.socket.listen(self.CONNECTIONS)
+        run_lock = Lock()
 
         while True:
             print('waiting for connection')
@@ -61,7 +68,7 @@ class GsSocketServer(GsSocket):
             # TODO if so then starting thread would be not needed,
             # TODO because we have only one client for reading from and only one
             # TODO client to whom we write
-            Thread(target=self.__handle_client_req__, args=(conn,)).start()
+            Thread(target=self.__handle_client_req__, args=(conn, run_lock)).start()
 
     def kill(self):
         pass

@@ -28,3 +28,7 @@ class GeoSquizzyResults:
                         last_parent = None
 
         return self.results
+
+    # TODO
+    def get_partial_results(self):
+        pass

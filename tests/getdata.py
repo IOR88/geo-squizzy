@@ -16,5 +16,7 @@ def get_geojson(url=None, path=None):
         # http://stackoverflow.com/questions/30627937/tracebaclk-attributeerroraddinfourl-instance-has-no-attribute-exit
     else:
         file = open(path, 'r')
-        return file.read()
+        data = file.read()
+        file.close()
+        return data
 

@@ -43,7 +43,10 @@ class FeaturesTree:
         # TODO SOCKET SEND
         # TODO START NEW THREAD HERE ?
         # TODO and only add items to queue
-        self.socket.write(leaf)
+
+        # TODO add new functionality to structure to support
+        # TODO returning only new leafs
+        self.socket.write(self.get_all_leafs_paths())
         # self.socket.run(leaf)
 
         if leaf['parent'] is None:
