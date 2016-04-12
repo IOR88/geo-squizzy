@@ -75,46 +75,51 @@ geo_squizzy.get_results()
 
 #### GsDemon methods
 
-```
+```python
 
-    from demon.gs_demon import GsDemon
-      
-    from socket import AF_INET, SOCK_STREAM  
-    
-    import sys  
+from demon.gs_demon import GsDemon
+  
+from socket import AF_INET, SOCK_STREAM  
+
+import sys  
 ```
 
 GsDemon example run script
 
 ```python
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
 ```    
 
 ```python
 
-    demon = GsDemon(pid_file='PATH/logs/pid.txt',
-                    std_in='PATH/logs/in.txt',
-                    std_out='PATH/logs/out.txt',
-                    std_err='PATH/logs/err.txt',
-                    HOST='localhost',
-                    PORT=PORT,
-                    FAMILY=AF_INET,
-                    TYPE=SOCK_STREAM,
-                    CONNECTIONS=INT)
-    if len(sys.argv) == 2:
-        if 'start' == sys.argv[1]:
-            demon.start()
-        elif 'stop' == sys.argv[1]:
-            demon.stop()
-        elif 'restart' == sys.argv[1]:
-            demon.restart()
-        else:
-            print("Unknown command")
-            sys.exit(2)
-        sys.exit(0)
+demon = GsDemon(pid_file='PATH/logs/pid.txt',
+                std_in='PATH/logs/in.txt',
+                std_out='PATH/logs/out.txt',
+                std_err='PATH/logs/err.txt',
+                HOST='localhost',
+                PORT=PORT,
+                FAMILY=AF_INET,
+                TYPE=SOCK_STREAM,
+                CONNECTIONS=INT)
+if len(sys.argv) == 2:
+    if 'start' == sys.argv[1]:
+        demon.start()
+    elif 'stop' == sys.argv[1]:
+        demon.stop()
+    elif 'restart' == sys.argv[1]:
+        demon.restart()
     else:
-        print("usage: %s start|stop|restart" % sys.argv[0])
+        print("Unknown command")
         sys.exit(2)
+    sys.exit(0)
+else:
+    print("usage: %s start|stop|restart" % sys.argv[0])
+    sys.exit(2)
     
 ```
+
+```
+python demon_script.py start || stop || restart
+```
+
