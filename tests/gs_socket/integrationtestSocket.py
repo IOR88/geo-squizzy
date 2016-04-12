@@ -30,7 +30,8 @@ class SocketClientServerConnectionTest(unittest.TestCase):
 
         self.geojson_options = {'geojson_options': {'mode': 'static', 'geojson_type': 'FeatureCollection'},
                                 'outcome_options': {},
-                                'optim': {'batch': 1, 'loss': -5.0}
+                                'optim': {'batch': 1, 'loss': -5.0},
+                                'socket_options': self.socket_options
                                 }
         self.data = get_geojson(path="/home/ing/PycharmProjects/geo-squizzy/"
                                      "geosquizzy/build_big_data/data/dump1000.json")
@@ -87,19 +88,32 @@ class SocketClientServerConnectionTest(unittest.TestCase):
         # Getting second client
         second_client_res = []
         while True:
+
             if not second_client_data.empty():
                 val = second_client_data.get()
-                second_client_res.append(val)
+
+                if bool(val):
+                    val = eval(val)
+                    second_client_res = second_client_res + val
             else:
                 break
+
         # Getting geosquizzy result
         geosquizzy_res = self.geosquizzy.get_results()
 
         # Compare test
-        # print(second_client_res)
-        # print(geosquizzy_res)
-        # a = set(geosquizzy_res)
-        # print(a)
+        org_len = len(geosquizzy_res)
+        sock_len = 0
+        for x in geosquizzy_res:
+            for y in second_client_res:
+                if y['keys'] == x['keys']:
+                    sock_len += 1
+                    break
+
+        # [print(x, '\n') for x in geosquizzy_res]
+        # [print(x, '\n') for x in second_client_res]
+        # TODO difference is with one key, which is gathered after leaving features array
+        self.assertTrue(org_len-1 == sock_len)
 
 
 def test_suite():

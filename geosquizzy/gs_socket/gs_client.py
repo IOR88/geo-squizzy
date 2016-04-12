@@ -41,6 +41,21 @@ class GsSocketClient(GsSocket):
             # self.disconnect()
             pass
 
+    def run(self, progress_queue, get_result_f):
+        self.connect()
+        while True:
+            task = progress_queue.get()
+            if task == 1:
+                # TODO it should be more generic not directly connected with
+                # TODO fsm self.def() -> rem logic from here
+                results = get_result_f(progress=True)
+                if results:
+                    self.write(results)
+                progress_queue.task_done()
+            elif task == 0:
+                progress_queue.task_done()
+                break
+
 if __name__ == "__main__":
     # TODO TESTING
     client = GsSocketClient(HOST='localhost',

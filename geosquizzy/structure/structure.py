@@ -4,6 +4,8 @@ from geosquizzy.optimum.network import Optimum
 from geosquizzy.gs_socket.gs_client import GsSocketClient
 
 from socket import AF_INET, SOCK_STREAM
+import threading
+import queue
 
 
 class Tree:
@@ -18,7 +20,7 @@ class FeaturesTree:
         self.Tree = Tree(*args, **kwargs)
         self.Res = GeoSquizzyResults(*args, **kwargs)
         self.Optimum = Optimum(*args, **kwargs)
-        self.socket = kwargs.get('socket', None)
+        # self.socket = kwargs.get('socket', None)
 
     @staticmethod
     def __new__leaf__():
@@ -40,13 +42,7 @@ class FeaturesTree:
         """
         self.Optimum.update_seq(leaf=leaf)
 
-        # TODO SOCKET SEND
-        # TODO START NEW THREAD HERE ?
-        # TODO and only add items to queue
-
-        # TODO add new functionality to structure to support
-        # TODO returning only new leafs
-        self.socket.write(self.get_all_leafs_paths())
+        # self.socket.write(self.get_all_leafs_paths(progress=True))
         # self.socket.run(leaf)
 
         if leaf['parent'] is None:
@@ -65,20 +61,17 @@ class FeaturesTree:
     def add_leaf_values(self, leaf_id=None, leaf_values=None):
         self.Tree.nodes[leaf_id]['values'] = leaf_values
 
-    def get_all_leafs_paths(self):
-        return self.Res.get_results(nodes=self.Tree.nodes)
+    def get_all_leafs_paths(self, progress=None):
+        return self.Res.get_results(nodes=self.Tree.nodes, progress=progress)
 
 
 class GeoJSON:
 
     def __init__(self, **kwargs):
-        self.Socket = GsSocketClient(HOST='localhost',
-                                     PORT=8030,
-                                     FAMILY=AF_INET,
-                                     TYPE=SOCK_STREAM)
-
-        self.FeTree = FeaturesTree(socket=self.Socket, **kwargs)
-        self.Fsm = GeojsonFiniteStateMachine(structure=self.FeTree)
+        self.Socket = GsSocketClient(**kwargs.get('socket_options'))
+        self.ProgressQueue = queue.Queue()
+        self.FeTree = FeaturesTree(**kwargs)
+        self.Fsm = GeojsonFiniteStateMachine(progress_queue=self.ProgressQueue, structure=self.FeTree)
 
         self.geojson = None
         self.options = kwargs.get('geojson_options', {})
@@ -86,17 +79,18 @@ class GeoJSON:
         self.__processes__()
 
     def __processes__(self):
-        self.Socket.connect()
-        pass
+        # self.Socket.connect()
+        self.SocketThread = threading.Thread(target=self.Socket.run, args=(self.ProgressQueue, self.__get_results__))
+        self.SocketThread.start()
 
     def __start__(self, **kwargs):
         self.geojson = kwargs.get('geojson', None)
         self.__read_geojson__(**kwargs)
 
-    def __get_results__(self):
+    def __get_results__(self, progress=None):
         # [print(x.keys, x.count) for x in self.FeTree.Optimum.RawData.models]
         # [print(x) for x in self.FeTree.Optimum.history]
-        return self.FeTree.get_all_leafs_paths()
+        return self.FeTree.get_all_leafs_paths(progress=progress)
 
     def __read_geojson__(self, **kwargs):
         if self.options['mode'] == 'static':

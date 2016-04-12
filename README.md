@@ -25,8 +25,18 @@ Initialization(Currently support only for GeoJSON docs type FeatureCollection)
 
 geojson_options = {'mode': 'static', 'geojson_type': 'FeatureCollection'}
 outcome_options = {}
+optim = {'batch': 1, 'loss': -5.0}
+socket_options = {'HOST': 'localhost',
+                  'PORT': 8030,
+                  'FAMILY': AF_INET,
+                  'TYPE': SOCK_STREAM}
 
-geo_squizzy = GeoSquizzy(geojson_options=geojson_options, outcome_options=outcome_options)
+geojson_options = {'geojson_options': geojson_options},
+                   'outcome_options': outcome_options,
+                   'optim': {'batch': 1, 'loss': -5.0},
+                   'socket_options': socket_options}
+
+geo_squizzy = GeoSquizzy(**geojson_options)
 ```
 
 Fetch data(keep in mind that data passed to start() method has to be in utf-8 format) 
@@ -46,9 +56,11 @@ geo_squizzy.get_results()
 ===================
 #### GeoSquizzy Methods
 
-**GeoSquizzy.start(geojson=str())**
-@geojson which has to be python str object which in it's structure
-will reflect the GeoJSON structure.  
+**GeoSquizzy(**kwargs)**
+@geojson_options
+@outcome_options
+@optim
+@socket_options
 
 **GeoSquizzy.get_results()**  
 @return python list() object which consist of dict() elements where each has this structure  

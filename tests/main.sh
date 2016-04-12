@@ -9,3 +9,5 @@ for test_file in "${TESTS[@]}"
         echo -e "\e[32mTEST execution for: $test_file\e[0m \n"
         python "$test_file"
     done
+
+# TODO catching error and stopping main.sh test loop

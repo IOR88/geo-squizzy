@@ -39,7 +39,7 @@ class GsSocketServer(GsSocket):
                         # print(str(data, 'utf-8'), '\n \n')
                         """
                         Lock is required to avoid other thread removing some client from
-                        self.clients set
+                        self.clients set RuntimeError
                         """
                         lock.acquire()
                         self.__broadcast__(data)
