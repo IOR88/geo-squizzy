@@ -68,8 +68,13 @@ class FeaturesTree:
 class GeoJSON:
 
     def __init__(self, **kwargs):
-        self.Socket = GsSocketClient(**kwargs.get('socket_options'))
-        self.ProgressQueue = queue.Queue()
+        if not (kwargs.get('socket_options', None) is None):
+            self.Socket = GsSocketClient(**kwargs.get('socket_options'))
+            self.ProgressQueue = queue.Queue()
+        else:
+            self.Socket = None
+            self.ProgressQueue = None
+
         self.FeTree = FeaturesTree(**kwargs)
         self.Fsm = GeojsonFiniteStateMachine(progress_queue=self.ProgressQueue, structure=self.FeTree)
 
@@ -79,9 +84,9 @@ class GeoJSON:
         self.__processes__()
 
     def __processes__(self):
-        # self.Socket.connect()
-        self.SocketThread = threading.Thread(target=self.Socket.run, args=(self.ProgressQueue, self.__get_results__))
-        self.SocketThread.start()
+        if self.Socket:
+            self.SocketThread = threading.Thread(target=self.Socket.run, args=(self.ProgressQueue, self.__get_results__))
+            self.SocketThread.start()
 
     def __start__(self, **kwargs):
         self.geojson = kwargs.get('geojson', None)

@@ -7,7 +7,6 @@ dist
 geo_squizzy.egg-info
 build_big_data/data/*
 research
-todo.txt
 testing.py
 geosquizzy/**/*TEMP.py
 demon/logs/*

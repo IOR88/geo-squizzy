@@ -155,4 +155,4 @@ class GsDemon(Demon, GsSocketServer):
 
     def __run__(self):
         self.create_connection()
-        self.listen()
+        self.run()

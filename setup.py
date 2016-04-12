@@ -7,14 +7,14 @@ if os.path.exists('README.txt'):
     long_description = open('README.txt').read()
 
 # dev version syntax 0.1.dev4
-# last stable 0.2.0
-# 0.2.1.dev1
-# next 0.2.1.dev2 || 0.2.2 ?
+# last stable 0.2.2
+# current 0.2.2
+# next 0.2.2.dev0 || 0.2.3 ?
 setup(
     name='geo-squizzy',
-    version='0.2.1.dev1',
+    version='0.2.2',
     packages=find_packages(exclude=['research*', 'tests*', 'testing.py',
-                                    'todo.txt', 'pycallgraph.png', 'dev_requirements.txt',
+                                    'pycallgraph.png', 'dev_requirements.txt',
                                     '**/*TEMP.py']),
     license='MIT',
     description='GeoJSON-unknown-documents-model-creation',

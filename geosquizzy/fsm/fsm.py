@@ -50,7 +50,8 @@ class GeojsonFiniteStateMachine:
             if increased:
                 self.DataPort.sig_new(omitted=self.Economization.omitted_obj)
                 self.Economization.increase_progress()
-                self.ProgressQueue.put(1)
+                if self.ProgressQueue:
+                    self.ProgressQueue.put(1)
 
             if not (exist is None):
                 self.Economization.adjust_space(exist=exist)
@@ -82,5 +83,6 @@ class GeojsonFiniteStateMachine:
                     self.RemoveState = RemoveState()
                     self.RemoveState.run(FSM=self, char=k)
 
-        self.ProgressQueue.put(0)
-        self.ProgressQueue.join()
+        if self.ProgressQueue:
+            self.ProgressQueue.put(0)
+            self.ProgressQueue.join()

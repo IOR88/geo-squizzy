@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "demon/main.py", line 19, in <module>
+    demon.start()
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 149, in start
+    Demon.start(self)
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 95, in start
+    self.__run__()
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 158, in __run__
+    self.listen()
+AttributeError: 'GsDemon' object has no attribute 'listen'
+Traceback (most recent call last):
+  File "demon/main.py", line 19, in <module>
+    demon.start()
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 149, in start
+    Demon.start(self)
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 95, in start
+    self.__run__()
+  File "/home/ing/PycharmProjects/geo-squizzy/geosquizzy/demon/gs_demon.py", line 158, in __run__
+    self.listen()
+AttributeError: 'GsDemon' object has no attribute 'listen'
