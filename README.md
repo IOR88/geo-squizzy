@@ -3,7 +3,7 @@
 
 #### General
 0. last version geo-squizzy-0.2.0(stable)
-1. last version geo-squizzy-0.2.1.dev0(unstable)
+1. last version geo-squizzy-0.2.1.dev1(unstable)
 2. no external dependencies
 
 ### Installation  
@@ -33,7 +33,7 @@ socket_options = {'HOST': 'localhost',
 
 geojson_options = {'geojson_options': geojson_options},
                    'outcome_options': outcome_options,
-                   'optim': {'batch': 1, 'loss': -5.0},
+                   'optim': optim,
                    'socket_options': socket_options}
 
 geo_squizzy = GeoSquizzy(**geojson_options)
@@ -56,14 +56,65 @@ geo_squizzy.get_results()
 ===================
 #### GeoSquizzy Methods
 
-**GeoSquizzy(**kwargs)**
-@geojson_options
-@outcome_options
-@optim
-@socket_options
+**GeoSquizzy(kwargs)**    
+@geojson_options: **only possible and required option for now {'mode': 'static', 'geojson_type': 'FeatureCollection'}**  
+@outcome_options: **no kwargs for this options**  
+@optim: **required**   
+    &nbsp;&nbsp;&nbsp;  **@batch** is the size of a item group on which optimization will be made range(1, +oo)  
+    speed of algorithm grows with decrease of batch size   
+    &nbsp;&nbsp;&nbsp;  **@loss** factor of possible data loss range(-oo, +oo)    
+    speed of algorithm grows when loss head to minus infinity      
+@socket_options: **no required**  
+    &nbsp;&nbsp;&nbsp;  **If added, together with GsDemon allow for interactive communication with algorithm**    
 
 **GeoSquizzy.get_results()**  
 @return python list() object which consist of dict() elements where each has this structure  
 {'values': ['-168.8205037850924', ' 131.69420530060995'], 'keys': ['coordinates', 'geometry', 'features']}  
 @values example values of @keys[0]  
 @keys a list of founded keys, presented in descending order(leaf -> root)
+
+#### GsDemon methods
+
+```
+
+    from demon.gs_demon import GsDemon
+      
+    from socket import AF_INET, SOCK_STREAM  
+    
+    import sys  
+```
+
+GsDemon example run script
+
+```python
+
+    if __name__ == "__main__":
+```    
+
+```python
+
+    demon = GsDemon(pid_file='PATH/logs/pid.txt',
+                    std_in='PATH/logs/in.txt',
+                    std_out='PATH/logs/out.txt',
+                    std_err='PATH/logs/err.txt',
+                    HOST='localhost',
+                    PORT=PORT,
+                    FAMILY=AF_INET,
+                    TYPE=SOCK_STREAM,
+                    CONNECTIONS=INT)
+    if len(sys.argv) == 2:
+        if 'start' == sys.argv[1]:
+            demon.start()
+        elif 'stop' == sys.argv[1]:
+            demon.stop()
+        elif 'restart' == sys.argv[1]:
+            demon.restart()
+        else:
+            print("Unknown command")
+            sys.exit(2)
+        sys.exit(0)
+    else:
+        print("usage: %s start|stop|restart" % sys.argv[0])
+        sys.exit(2)
+    
+```
