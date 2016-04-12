@@ -123,3 +123,12 @@ else:
 python demon_script.py start || stop || restart
 ```
 
+After initializing demon, we can provide socket_options for geosquizzy client  
+which will communicate with demon(for now sending new keys), demon will then
+broadcast all new messages to other clients  
+  
+**Example will be provided with geogeschenk demo app**  
+**Server** [https://github.com/LowerSilesians/geo-geschenk-server](https://github.com/LowerSilesians/geo-geschenk-server)  
+**Client**  
+(If You would create a client socket and listen(read data) on demon port
+then all the time during algorithm work You would be informed about new keys  
