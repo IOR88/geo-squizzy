@@ -58,8 +58,11 @@ class SocketClientServerConnectionTest(unittest.TestCase):
             while True:
                 data = client.read(1024)
                 if data:
-                    q.put(str(data, 'utf-8'))
-                    q.task_done()
+                    if data == b'0':
+                        break
+                    else:
+                        q.put(str(data, 'utf-8'))
+                        q.task_done()
                 else:
                     break
 
@@ -92,7 +95,7 @@ class SocketClientServerConnectionTest(unittest.TestCase):
             if not second_client_data.empty():
                 val = second_client_data.get()
 
-                if bool(val):
+                if bool(val):  # 0 False but b'0' is True
                     val = eval(val)
                     second_client_res = second_client_res + val
             else:

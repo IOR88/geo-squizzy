@@ -45,11 +45,14 @@ class GsSocketServer(GsSocket):
                         self.__broadcast__(data)
                         lock.release()
                     else:
-                        print('closing connection ?')
+                        print('sending end signal.')
+                        self.__broadcast__(b'0')
+                        print('closing connection.')
                         conn.close()
                         self.clients.difference_update([conn])
                         break
                 except (BrokenPipeError, ConnectionResetError) as err:
+                    print('error closing connection.')
                     conn.close()
                     self.clients.difference_update([conn])
                     break
