@@ -8,11 +8,11 @@ if os.path.exists('README.txt'):
 
 # dev version syntax 0.1.dev4
 # last stable 0.2.2
-# current 0.2.2
-# next 0.2.2.dev0 || 0.2.3 ?
+# current 0.2.2.dev0
+# next 0.2.2.dev1 || 0.2.3 ?
 setup(
     name='geo-squizzy',
-    version='0.2.2',
+    version='0.2.2.dev0',
     packages=find_packages(exclude=['research*', 'tests*', 'testing.py',
                                     'pycallgraph.png', 'dev_requirements.txt',
                                     '**/*TEMP.py']),
